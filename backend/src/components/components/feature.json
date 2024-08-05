@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_components_features",
+  "info": {
+    "displayName": "Feature",
+    "icon": "brush",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "heading": {
+      "type": "string"
+    },
+    "subHeading": {
+      "type": "text"
+    },
+    "icon": {
+      "type": "enumeration",
+      "enum": [
+        "ICON_1",
+        "ICON_2",
+        "ICON_3"
+      ]
+    }
+  }
+}

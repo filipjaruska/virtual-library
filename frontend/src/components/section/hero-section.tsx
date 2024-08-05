@@ -1,4 +1,5 @@
 import Link from "next/link";
+import {StrapiImage} from "@/components/ui/strapi-image";
 
 interface ImageProps {
     id: number;
@@ -17,22 +18,18 @@ interface HeroSectionProps {
         heading: string;
         subHeading: string;
         image: ImageProps;
-        link: LinkProps[];
+        link: LinkProps;
     }
 }
 export function HeroSection({ data }: Readonly<HeroSectionProps>) {
     const {heading, subHeading, image, link} = data;
     return (
         <header className="relative h-[600px] overflow-hidden">
-            <img
+            <StrapiImage
                 alt="Background"
                 className="absolute inset-0 object-cover w-full h-full"
                 height={1080}
-                src={"http://localhost:1337" + image.url}
-                style={{
-                    aspectRatio: "1920/1080",
-                    objectFit: "cover",
-                }}
+                src={image.url}
                 width={1920}
             />
             <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white bg-black bg-opacity-20">
