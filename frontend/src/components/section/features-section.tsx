@@ -33,7 +33,7 @@ export function FeatureSection({
 }) {
     const { feature } = data;
     // console.dir(feature, { depth: null });
-    // console.log(feature[0].Icon); // was an error in strapi, fixed it but its still returns Icon with capital I in json
+    //TODO console.log(feature[0].Icon); // was an error in strapi, fixed it but its still returns Icon with capital I in json
     return (
         <div className="">
             <div className="flex-1">

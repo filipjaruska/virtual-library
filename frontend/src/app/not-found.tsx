@@ -6,10 +6,10 @@ export default function NotFound() {
             <div className="space-y-4">
                 <MdSearchOff className="h-24 w-24 text-pink-500 dark:text-pink-400"/>
                 <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100">
-                    Oops!
+                    404
                 </h1>
                 <p className="text-lg text-gray-700 dark:text-gray-300">
-                    This page has left the building.
+                    This page was not found.
                 </p>
                 <Link
                     href="/"
