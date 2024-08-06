@@ -1,11 +1,13 @@
+import { FaBook, FaBookmark, FaClock   } from "react-icons/fa";
+
 function getIcon(name: string) {
     switch (name) {
         case "ICON_1":
-            return <div>ICON 1</div>
+            return <FaBook className="h-16 w-16 p-2 text-primary" />
         case "ICON_2":
-            return <div>ICON 2</div>
+            return <FaBookmark className="h-16 w-16 p-2 text-primary" />
         case "ICON_3":
-            return <div>ICON 3</div>
+            return <FaClock  className="h-16 w-16 p-2 text-primary" />
         default:
             return null;
     }

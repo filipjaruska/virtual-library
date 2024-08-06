@@ -1,31 +1,5 @@
 import type { Schema, Attribute } from '@strapi/strapi';
 
-export interface ComponentsLink extends Schema.Component {
-  collectionName: 'components_components_links';
-  info: {
-    displayName: 'Link';
-  };
-  attributes: {
-    url: Attribute.String;
-    text: Attribute.String;
-    isExternal: Attribute.Boolean;
-  };
-}
-
-export interface ComponentsFeature extends Schema.Component {
-  collectionName: 'components_components_features';
-  info: {
-    displayName: 'Feature';
-    icon: 'brush';
-    description: '';
-  };
-  attributes: {
-    heading: Attribute.String;
-    subHeading: Attribute.Text;
-    icon: Attribute.Enumeration<['ICON_1', 'ICON_2', 'ICON_3']>;
-  };
-}
-
 export interface LayoutHeroSection extends Schema.Component {
   collectionName: 'components_layout_hero_sections';
   info: {
@@ -75,15 +49,41 @@ export interface LayoutFeaturesSection extends Schema.Component {
   };
 }
 
+export interface ComponentsLink extends Schema.Component {
+  collectionName: 'components_components_links';
+  info: {
+    displayName: 'Link';
+  };
+  attributes: {
+    url: Attribute.String;
+    text: Attribute.String;
+    isExternal: Attribute.Boolean;
+  };
+}
+
+export interface ComponentsFeature extends Schema.Component {
+  collectionName: 'components_components_features';
+  info: {
+    displayName: 'Feature';
+    icon: 'brush';
+    description: '';
+  };
+  attributes: {
+    heading: Attribute.String;
+    subHeading: Attribute.Text;
+    icon: Attribute.Enumeration<['ICON_1', 'ICON_2', 'ICON_3']>;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
-      'components.link': ComponentsLink;
-      'components.feature': ComponentsFeature;
       'layout.hero-section': LayoutHeroSection;
       'layout.header': LayoutHeader;
       'layout.footer': LayoutFooter;
       'layout.features-section': LayoutFeaturesSection;
+      'components.link': ComponentsLink;
+      'components.feature': ComponentsFeature;
     }
   }
 }
