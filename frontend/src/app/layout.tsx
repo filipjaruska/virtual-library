@@ -5,6 +5,7 @@ import "./globals.css";
 import {getGlobalPageData, getGlobalPageMetadata} from "@/lib/loaders";
 import {Header} from "@/components/header";
 import {Footer} from "@/components/footer";
+import {ThemeProvider} from "@/components/ui/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,9 +26,17 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+      <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          themes={["light", "dark", "odark"]}
+          disableTransitionOnChange
+      >
       <Header data={globalData.header}/>
       {children}
       <Footer data={globalData.footer}/>
+      </ThemeProvider>    
       </body>
     </html>
   );

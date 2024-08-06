@@ -62,7 +62,7 @@ export function SigninForm() {
                     </CardContent>
                     <CardFooter className="flex flex-col">
                         <SubmitButton
-                            className="w-full"
+                            className="w-full bg-primary text-primary-foreground"
                             text="Sign In"
                             loadingText="Loading"
                         />
@@ -71,7 +71,7 @@ export function SigninForm() {
                 </Card>
                 <div className="mt-4 text-center text-sm">
                     Don't have an account?
-                    <Link className="underline ml-2" href="signup">
+                    <Link className="underline ml-2 text-primary" href="signup">
                         Sign Up
                     </Link>
                 </div>

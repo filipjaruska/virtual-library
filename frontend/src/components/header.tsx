@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {getUserMeLoader} from "@/lib/services/get-user-me-loader";
-import {LogoutButton} from "@/components/ui/logout-button";
-import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar";
+import { getUserMeLoader } from "@/lib/services/get-user-me-loader";
+import { LogoutButton } from "@/components/ui/logout-button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -11,7 +11,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-
+import { ModeToggle } from "@/components/ui/theme-toggle";
 
 interface HeaderProps {
     data: {
@@ -32,9 +32,10 @@ export async function Header({ data }: Readonly<HeaderProps>) {
     const { logoText, ctaButton } = data;
     const user = await getUserMeLoader();
     return (
-        <div className="flex items-center justify-between px-4 py-3 bg-white shadow-md dark:bg-gray-800">
+        <div className="flex items-center justify-between px-4 py-3 bg-secondary text-secondary-foreground shadow-md">
             <div>{logoText.text}</div>
             <div style={{ userSelect: "none" }} className="flex items-center gap-4">
+                <ModeToggle />
                 {!user.ok ? <Link href={ctaButton.url}><Button>{ctaButton.text}</Button></Link> :
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>

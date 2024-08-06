@@ -40,7 +40,7 @@ export function HeroSection({ data }: Readonly<HeroSectionProps>) {
                     {subHeading}
                 </p>
                 <Link
-                    className="mt-8 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-black bg-white rounded-md shadow hover:bg-gray-100"
+                    className="mt-8 inline-flex items-center justify-center px-6 py-3 text-base font-medium text-primary bg-background rounded-md shadow hover:bg-secondary"
                     href={link.url}
                 >
                     {link.text}

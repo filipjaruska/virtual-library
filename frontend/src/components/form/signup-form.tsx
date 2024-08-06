@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import {useFormState} from "react-dom";
+import { useFormState } from "react-dom";
 
 import {
     CardTitle,
@@ -14,16 +14,17 @@ import {
 
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import {registerUserAction} from "@/lib/actions/auth-actions";
-import {ZodError} from "@/components/ui/zod-error";
-import {StrapiError} from "@/components/ui/strapi-error";
-import {SubmitButton} from "@/components/ui/submit-button";
+import { registerUserAction } from "@/lib/actions/auth-actions";
+import { ZodError } from "@/components/ui/zod-error";
+import { StrapiError } from "@/components/ui/strapi-error";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 const INITIAL_STATE = {
     data: null,
     zodError: null,
     message: null,
-}
+};
+
 export function SignupForm() {
     const [formState, formAction] = useFormState(registerUserAction, INITIAL_STATE);
     return (
@@ -57,7 +58,6 @@ export function SignupForm() {
                             />
                             <ZodError error={formState?.zodError?.email}/>
                         </div>
-
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
                             <Input
@@ -70,13 +70,13 @@ export function SignupForm() {
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col">
-                        <SubmitButton className="w-full" text="Sign Up" loadingText="Loading" />
+                        <SubmitButton className="w-full bg-primary text-primary-foreground" text="Sign Up" loadingText="Loading" />
                         <StrapiError error={formState?.strapiError}/>
                     </CardFooter>
                 </Card>
                 <div className="mt-4 text-center text-sm">
                     Have an account?
-                    <Link className="underline ml-2" href="signin">
+                    <Link className="underline ml-2 text-primary" href="signin">
                         Sing In
                     </Link>
                 </div>
