@@ -6,11 +6,13 @@ interface ImageProps {
     url: string;
     alternativeText: string;
 }
-interface LinkProps{
+
+interface LinkProps {
     id: number;
     url: string;
     text: string;
 }
+
 interface HeroSectionProps {
     data: {
         id: number;
@@ -21,7 +23,8 @@ interface HeroSectionProps {
         link: LinkProps;
     }
 }
-export function HeroSection({ data }: Readonly<HeroSectionProps>) {
+
+export function HeroSection({data}: Readonly<HeroSectionProps>) {
     const {heading, subHeading, image, link} = data;
     return (
         <header className="relative h-[600px] overflow-hidden">
@@ -32,7 +35,8 @@ export function HeroSection({ data }: Readonly<HeroSectionProps>) {
                 src={image.url}
                 width={1920}
             />
-            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white bg-black bg-opacity-20">
+            <div
+                className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white bg-black bg-opacity-20">
                 <h1 className="text-4xl font-bold md:text-5xl lg:text-6xl">
                     {heading}
                 </h1>

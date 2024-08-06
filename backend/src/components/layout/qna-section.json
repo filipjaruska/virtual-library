@@ -1,0 +1,19 @@
+{
+  "collectionName": "components_layout_qna_sections",
+  "info": {
+    "displayName": "Qna Section",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string"
+    },
+    "qnas": {
+      "displayName": "Qnas",
+      "type": "component",
+      "repeatable": true,
+      "component": "components.qnas"
+    }
+  }
+}

@@ -1,13 +1,13 @@
-import { FaBook, FaBookmark, FaClock   } from "react-icons/fa";
+import {FaBook, FaBookmark, FaClock} from "react-icons/fa";
 
 function getIcon(name: string) {
     switch (name) {
         case "ICON_1":
-            return <FaBook className="h-16 w-16 p-2 text-primary" />
+            return <FaBook className="h-16 w-16 p-2 text-primary"/>
         case "ICON_2":
-            return <FaBookmark className="h-16 w-16 p-2 text-primary" />
+            return <FaBookmark className="h-16 w-16 p-2 text-primary"/>
         case "ICON_3":
-            return <FaClock  className="h-16 w-16 p-2 text-primary" />
+            return <FaClock className="h-16 w-16 p-2 text-primary"/>
         default:
             return null;
     }
@@ -28,8 +28,8 @@ interface FeatureSectionProps {
     feature: FeatureProps[];
 }
 
-export function FeatureSection({ data }: { readonly data: FeatureSectionProps }) {
-    const { feature } = data;
+export function FeatureSection({data}: { readonly data: FeatureSectionProps }) {
+    const {feature} = data;
     return (
         <div className="flex-1">
             <section className="container px-4 py-6 mx-auto md:px-6 lg:py-24">

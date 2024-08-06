@@ -1,5 +1,17 @@
 import type { Schema, Attribute } from '@strapi/strapi';
 
+export interface LayoutQnaSection extends Schema.Component {
+  collectionName: 'components_layout_qna_sections';
+  info: {
+    displayName: 'Qna Section';
+    description: '';
+  };
+  attributes: {
+    title: Attribute.String;
+    qnas: Attribute.Component<'components.qnas', true>;
+  };
+}
+
 export interface LayoutHeroSection extends Schema.Component {
   collectionName: 'components_layout_hero_sections';
   info: {
@@ -49,6 +61,17 @@ export interface LayoutFeaturesSection extends Schema.Component {
   };
 }
 
+export interface ComponentsQnas extends Schema.Component {
+  collectionName: 'components_components_qnas';
+  info: {
+    displayName: 'Qnas';
+  };
+  attributes: {
+    heading: Attribute.String;
+    answer: Attribute.Text;
+  };
+}
+
 export interface ComponentsLink extends Schema.Component {
   collectionName: 'components_components_links';
   info: {
@@ -78,10 +101,12 @@ export interface ComponentsFeature extends Schema.Component {
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
+      'layout.qna-section': LayoutQnaSection;
       'layout.hero-section': LayoutHeroSection;
       'layout.header': LayoutHeader;
       'layout.footer': LayoutFooter;
       'layout.features-section': LayoutFeaturesSection;
+      'components.qnas': ComponentsQnas;
       'components.link': ComponentsLink;
       'components.feature': ComponentsFeature;
     }

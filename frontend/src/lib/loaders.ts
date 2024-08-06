@@ -39,6 +39,9 @@ export async function getHomePageData() {
                     },
                     feature: {
                         populate: true
+                    },
+                    qnas: {
+                        populate: true
                     }
                 }
             }

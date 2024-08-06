@@ -2,6 +2,7 @@ import {getHomePageData} from "@/lib/loaders";
 
 import {HeroSection} from "@/components/section/hero-section";
 import {FeatureSection} from "@/components/section/features-section";
+import QnaSection from "@/components/section/qna-section";
 
 function blockRenderer(block: any) {
     switch (block.__component) {
@@ -9,16 +10,18 @@ function blockRenderer(block: any) {
             return <HeroSection key={block.id} data={block}/>;
         case "layout.features-section":
             return <FeatureSection key={block.id} data={block}/>;
+        case "layout.qna-section":
+            return <QnaSection key={block.id} data={block}/>;
         default:
             return null;
     }
 }
 
 export default async function Home() {
-
     const strapiData = await getHomePageData();
     const {blocks} = strapiData;
     if (!blocks) return <div>No block found!</div>
+    //console.dir(blocks, {depth: null});
     return (
         <main>
             {blocks.map((block: any) => blockRenderer(block))}
