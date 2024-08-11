@@ -24,6 +24,23 @@ async function fetchData(url: string) {
     }
 }
 
+export async function getBooksPageData(){
+    noStore()
+    const url = new URL("/api/books", baseUrl);
+    url.search = qs.stringify({
+        populate: {
+            books:{
+                populate: true,
+            },
+            image: {
+                fields: ["url", "alternativeText"],
+            }
+        }
+    })
+    console.log(url.search)
+    return await fetchData(url.href)
+}
+
 export async function getHomePageData() {
     noStore()
     const url = new URL("/api/home-page", baseUrl)
@@ -51,6 +68,7 @@ export async function getHomePageData() {
 }
 
 export async function getGlobalPageData(){
+    noStore()
     const url = new URL("/api/global", baseUrl)
     url.search = qs.stringify({
         populate:[

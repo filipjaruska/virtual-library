@@ -98,6 +98,20 @@ export interface ComponentsFeature extends Schema.Component {
   };
 }
 
+export interface ComponentsBook extends Schema.Component {
+  collectionName: 'components_components_books';
+  info: {
+    displayName: 'Book';
+    description: '';
+  };
+  attributes: {
+    title: Attribute.String;
+    description: Attribute.Text;
+    author: Attribute.String;
+    image: Attribute.Media<'images'>;
+  };
+}
+
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
@@ -109,6 +123,7 @@ declare module '@strapi/types' {
       'components.qnas': ComponentsQnas;
       'components.link': ComponentsLink;
       'components.feature': ComponentsFeature;
+      'components.book': ComponentsBook;
     }
   }
 }

@@ -15,7 +15,7 @@ interface QnaSectionProps {
 }
 
 export default function QnaSection({data}: { readonly data: QnaSectionProps }) {
-    console.log(data)
+    // console.log(data)
     const {title, qnas} = data;
     return (
         <section className="container px-4 py-6 mx-auto md:px-6 lg:py-24">

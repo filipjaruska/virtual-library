@@ -33,7 +33,6 @@ interface HeaderProps {
 export async function Header({data}: Readonly<HeaderProps>) {
     const {logoText, ctaButton} = data;
     const user = await getUserMeLoader();
-    const profileImage = getStrapiURL() + user.data.image.url
     return (
         <div className="flex items-center justify-between px-4 py-3 bg-secondary text-secondary-foreground shadow-md">
             <Link className={"flex flex-row gap-4 items-center"} href={"/"}>
@@ -46,7 +45,7 @@ export async function Header({data}: Readonly<HeaderProps>) {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Avatar className="cursor-pointer hover:scale-105">
-                                <AvatarImage src={profileImage}/>
+                                <AvatarImage src={getStrapiURL() + user.data.image.url}/>
                                 <AvatarFallback>{user.data.username.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
