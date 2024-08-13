@@ -24,6 +24,19 @@ async function fetchData(url: string) {
     }
 }
 
+export async function getBookData(bookId: String) {
+    const url = new URL(`/api/books/${bookId}`, baseUrl);
+    url.search = qs.stringify({
+        populate: {
+            image: {
+                fields: ["url", "alternativeText"],
+            },
+        },
+    });
+
+    return await fetchData(url.href);
+}
+
 export async function getBooksPageData(){
     noStore()
     const url = new URL("/api/books", baseUrl);

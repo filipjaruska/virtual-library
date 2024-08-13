@@ -37,14 +37,29 @@ function BookGrid({ books }: BookGridProps) {
                 <BookCard
                     id={book.id}
                     key={book.id}
-                    title={book.title}
+                    title={truncateTitle(book.title)}
                     author={book.author}
                     image={book.image}
-                    description={book.description}
+                    description={truncateDescription(book.description)}
                 />
             ))}
         </div>
     );
+}
+
+function truncateTitle(title: string) {
+    const maxLength = 25
+    if (title.length > maxLength) {
+        return title.substring(0, maxLength) + '...';
+    }
+    return title;
+}
+function truncateDescription(description: string) {
+    const maxLength = 155
+    if (description.length > maxLength) {
+        return description.substring(0, maxLength) + '...';
+    }
+    return description;
 }
 
 export default BookGrid;

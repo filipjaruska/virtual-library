@@ -4,11 +4,11 @@ import BookGrid from "@/components/section/bookgrid-section";
 import { BooksNavigationMenu } from "@/components/ui/books-navigation-menu";
 import { FaSearch } from "react-icons/fa";
 import { getBooksPageData } from "@/lib/loaders";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
-export default function Page() {
-    const [books, setBooks] = useState([]);
+export default async function Page() {
     const router = useRouter();
+    const [books, setBooks] = useState([]);
     //TODO REFACTOR
     useEffect(() => {
         async function fetchBooks() {
