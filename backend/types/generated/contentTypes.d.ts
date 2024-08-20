@@ -378,6 +378,7 @@ export interface ApiBookBook extends Schema.CollectionType {
     author: Attribute.String;
     description: Attribute.Text;
     image: Attribute.Media<'images'>;
+    tags: Attribute.Component<'components.tag', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

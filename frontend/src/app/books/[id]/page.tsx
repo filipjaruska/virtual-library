@@ -1,22 +1,9 @@
 import React from 'react';
 import { getBookData } from "@/lib/loaders";
 import { getStrapiURL } from "@/lib/utils";
-import { Button } from "@/components/ui/button"; // Assuming this is where your button component is located
-import { Textarea } from "@/components/ui/textarea"; // Assuming a textarea component from shadcn/ui
-
-interface ImageProps {
-    id: number;
-    url: string;
-    alternativeText: string;
-}
-
-interface Book {
-    id: number;
-    title: string;
-    author: string;
-    image: ImageProps;
-    description: string;
-}
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import Tags from "@/components/custom-ui/tags";
 
 export default async function Page({ params }: { params: { id: string } }) {
     const book: Book = await getBookData(String(params.id));
@@ -36,6 +23,8 @@ export default async function Page({ params }: { params: { id: string } }) {
                         <h1 className="text-3xl font-bold text-primary mb-4">{book.title}</h1>
                         <h2 className="text-xl text-muted-foreground mb-2">By {book.author}</h2>
                         <p className="text-lg text-card-foreground mb-6">{book.description}</p>
+
+                        <Tags tags={book.tags} />
                     </div>
                     <div className="ml-auto">
                         <Button className="bg-primary text-primary-foreground hover:bg-primary/90">

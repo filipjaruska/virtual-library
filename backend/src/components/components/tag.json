@@ -1,0 +1,25 @@
+{
+  "collectionName": "components_components_tags",
+  "info": {
+    "displayName": "Tag",
+    "description": ""
+  },
+  "options": {},
+  "attributes": {
+    "name": {
+      "type": "enumeration",
+      "enum": [
+        "new",
+        "popular",
+        "upcoming",
+        "gold",
+        "sci-fy",
+        "fiction",
+        "romance novel",
+        "thriller",
+        "children's literature",
+        "biography"
+      ]
+    }
+  }
+}

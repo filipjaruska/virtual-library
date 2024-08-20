@@ -16,6 +16,7 @@
 
 # IDEs
 .idea/
+.vscode/
 
 # local env files
 .env*.local
@@ -27,3 +28,5 @@
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+frontend/.vscode/settings.json
+/frontend/.vscode

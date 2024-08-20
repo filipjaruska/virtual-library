@@ -28,6 +28,11 @@
       "allowedTypes": [
         "images"
       ]
+    },
+    "tags": {
+      "type": "component",
+      "repeatable": true,
+      "component": "components.tag"
     }
   }
 }

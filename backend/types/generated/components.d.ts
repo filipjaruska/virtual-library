@@ -61,6 +61,30 @@ export interface LayoutFeaturesSection extends Schema.Component {
   };
 }
 
+export interface ComponentsTag extends Schema.Component {
+  collectionName: 'components_components_tags';
+  info: {
+    displayName: 'Tag';
+    description: '';
+  };
+  attributes: {
+    name: Attribute.Enumeration<
+      [
+        'new',
+        'popular',
+        'upcoming',
+        'gold',
+        'sci-fy',
+        'fiction',
+        'romance novel',
+        'thriller',
+        "children's literature",
+        'biography'
+      ]
+    >;
+  };
+}
+
 export interface ComponentsQnas extends Schema.Component {
   collectionName: 'components_components_qnas';
   info: {
@@ -120,6 +144,7 @@ declare module '@strapi/types' {
       'layout.header': LayoutHeader;
       'layout.footer': LayoutFooter;
       'layout.features-section': LayoutFeaturesSection;
+      'components.tag': ComponentsTag;
       'components.qnas': ComponentsQnas;
       'components.link': ComponentsLink;
       'components.feature': ComponentsFeature;

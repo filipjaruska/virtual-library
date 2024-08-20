@@ -31,27 +31,55 @@ export async function getBookData(bookId: String) {
             image: {
                 fields: ["url", "alternativeText"],
             },
+            tags: {
+                fields: ["name"],
+            },
         },
     });
-
     return await fetchData(url.href);
 }
 
-export async function getBooksPageData(){
-    noStore()
+export async function getBooksPageData(
+    searchQuery: string = "",
+    tag: string = "",
+    page: number = 1,
+    pageSize: number = 24,
+    sort: string = "title:asc"
+) {
+    noStore();
     const url = new URL("/api/books", baseUrl);
     url.search = qs.stringify({
+        filters: {
+            ...(searchQuery && {
+                title: {
+                    $containsi: searchQuery,
+                },
+            }),
+            ...(tag && {
+                tags: {
+                    name: tag,
+                },
+            }),
+        },
+        pagination: {
+            page: page,
+            pageSize: pageSize,
+        },
+        sort: sort,
         populate: {
-            books:{
-                populate: true,
-            },
             image: {
                 fields: ["url", "alternativeText"],
-            }
-        }
-    })
-    console.log(url.search)
-    return await fetchData(url.href)
+            },
+            tags: {
+                fields: ["name"],
+            },
+        },
+    });
+    return await fetchData(url.href);
+}
+
+export async function getComments(){
+    
 }
 
 export async function getHomePageData() {

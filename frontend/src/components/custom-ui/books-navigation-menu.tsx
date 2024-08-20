@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 
-import { cn } from "@/lib/utils";
+import {cn} from "@/lib/utils";
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -14,55 +14,63 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import {ImBooks} from "react-icons/im";
+import {useRouter} from "next/navigation";
 
 const components = [
     {
         title: "Sci-fi",
-        href: "/docs/primitives/alert-dialog",
+        tag: "sci-fi",
         description:
             "Sci-fi typically deals with imaginative and futuristic concepts such as advanced science and technology, space exploration, time travel, parallel universes, and extraterrestrial life. It is related to fantasy, horror, and superhero fiction and contains many subgenres.",
     },
     {
         title: "Fiction",
-        href: "/books/fiction",
+        tag: "fiction",
         description:
             "Fiction is portraying individuals, events, or places that are imaginary.",
     },
     {
         title: "Romance novel",
-        href: "/docs/primitives/progress",
+        tag: "romance novel",
         description:
             "A romance novel or romantic novel is a genre fiction novel that primary focuses on the relationship and romantic love between two people, typically with an emotionally satisfying and optimistic ending.",
     },
     {
         title: "Thriller",
-        href: "/docs/primitives/scroll-area",
+        tag: "thriller",
         description: "Thriller is a genre of fiction with numerous, often overlapping, subgenres, including crime, horror, and detective fiction..",
     },
     {
         title: "Children's literature",
-        href: "/docs/primitives/tabs",
+        tag: "children's literature",
         description:
             "Children's literature or juvenile literature includes stories, books, magazines, and poems that are created for children.",
     },
     {
         title: "Biography",
-        href: "/docs/primitives/tooltip",
+        tag: "biography",
         description:
             "A biography, or simply bio, is a detailed description of a person's life.",
     },
 ];
 
 export function BooksNavigationMenu() {
-    const handleRefresh = () => {
-        window.location.reload();
+    const router = useRouter();
+
+    const handleTagChange = (tag: string) => {
+        const currentUrl = new URL(window.location.href);
+        currentUrl.searchParams.set('tag', tag);
+        router.push(currentUrl.toString(), { scroll: false });
     };
+
     return (
         <NavigationMenu>
             <NavigationMenuList className="flex">
-                <NavigationMenuItem onClick={handleRefresh}>
+                <NavigationMenuItem>
                     <Link href="/books" legacyBehavior passHref>
-                        <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        <NavigationMenuLink
+                            className={navigationMenuTriggerStyle()}
+                            onClick={() => handleTagChange('')}>
                             All
                         </NavigationMenuLink>
                     </Link>
@@ -74,11 +82,11 @@ export function BooksNavigationMenu() {
                             <li className="row-span-3">
                                 <NavigationMenuLink asChild>
                                     <a
-                                        className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                                        href="/"
+                                        className="flex h-full w-full select-none flex-col hover:cursor-pointer justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md hover:bg-primary"
+                                        onClick={() => handleTagChange('popular')}
                                     >
-                                        <ImBooks   className="h-6 w-6" />
-                                        <div className="mb-2 mt-4 text-lg font-medium">
+                                        <ImBooks className="h-6 w-6"/>
+                                        <div className="mb-2 mt-4 text-lg font-medium ">
                                             Popular
                                         </div>
                                         <p className="text-sm leading-tight text-muted-foreground">
@@ -88,13 +96,13 @@ export function BooksNavigationMenu() {
                                     </a>
                                 </NavigationMenuLink>
                             </li>
-                            <ListItem href="/books" title="New Releases">
+                            <ListItem onClick={() => handleTagChange('new')} title="New Releases">
                                 Re-usable components built using Radix UI and Tailwind CSS.
                             </ListItem>
-                            <ListItem href="/docs/installation" title="Upcoming Releases">
+                            <ListItem onClick={() => handleTagChange('upcoming')} title="Upcoming Releases">
                                 How to install dependencies and structure your app.
                             </ListItem>
-                            <ListItem href="/docs/primitives/typography" title="Hidden Gold">
+                            <ListItem onClick={() => handleTagChange('gold')} title="Hidden Gold">
                                 Styles for headings, paragraphs, lists...etc
                             </ListItem>
                         </ul>
@@ -108,7 +116,7 @@ export function BooksNavigationMenu() {
                                 <ListItem
                                     key={component.title}
                                     title={component.title}
-                                    href={component.href}
+                                    onClick={() => handleTagChange(component.tag)}
                                 >
                                     {component.description}
                                 </ListItem>
@@ -124,14 +132,14 @@ export function BooksNavigationMenu() {
 const ListItem = React.forwardRef<
     React.ElementRef<"a">,
     React.ComponentPropsWithoutRef<"a">
->(({ className, title, children, ...props }, ref) => {
+>(({className, title, children, ...props}, ref) => {
         return (
             <li>
                 <NavigationMenuLink asChild>
                     <a
                         ref={ref}
                         className={cn(
-                            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+                            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground hover:cursor-pointer",
                             className
                         )}
                         {...props}
