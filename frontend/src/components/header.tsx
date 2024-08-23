@@ -45,7 +45,7 @@ export async function Header({data}: Readonly<HeaderProps>) {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Avatar className="cursor-pointer hover:scale-105">
-                                <AvatarImage src={getStrapiURL() + user.data.image.url}/>
+                                <AvatarImage src={user.data.image.url}/>
                                 <AvatarFallback>{user.data.username.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>

@@ -1,6 +1,5 @@
 import React from 'react';
 import {getBookData} from "@/lib/loaders";
-import {getStrapiURL} from "@/lib/utils";
 import {Button} from "@/components/ui/button";
 import Tags from "@/components/custom-ui/tags";
 import {Book, BookComment} from "@/lib/types/books";
@@ -15,7 +14,7 @@ export default async function Page({params}: { params: { id: string } }) {
             <div className="bg-card shadow-md rounded-lg flex flex-col md:flex-row overflow-hidden">
                 <div className="md:w-1/3 w-full">
                     <img
-                        src={getStrapiURL() + book.image.url}
+                        src={book.image.url}
                         alt={book.image.alternativeText}
                         className="w-full h-auto object-cover"
                     />
