@@ -1,5 +1,6 @@
 import React from "react";
 import BookCard from "@/components/custom-ui/book-card";
+import {Books} from "@/lib/types/books";
 
 
 function BookGrid({ books }: Books) {

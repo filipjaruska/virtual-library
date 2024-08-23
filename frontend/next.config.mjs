@@ -8,6 +8,10 @@ const nextConfig = {
                 port: "1337",
                 pathname: "/uploads/**/*",
             },
+            {
+                protocol: "https",
+                hostname: "https://tasteful-respect-ed15c7ec66.media.strapiapp.com",
+            }
         ],
     },
 };
