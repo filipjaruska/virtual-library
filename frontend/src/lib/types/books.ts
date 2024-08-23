@@ -9,7 +9,7 @@ export interface Book {
     description: string;
     image: ImageProps;
     tags: Tag[];
-    comments: CommentsData;
+    comments?: CommentsData;
 }
 
 interface ImageProps {
@@ -17,7 +17,7 @@ interface ImageProps {
     alternativeText: string;
 }
 
-interface Tag {
+export interface Tag {
     id: number;
     name: string;
 }

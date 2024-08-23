@@ -41,7 +41,7 @@ export default async function Page({params}: { params: { id: string } }) {
                 <CreateCommentForm bookId={book.id} canSubmit={user.ok} user={user.data}/>
 
                 <div className="space-y-4">
-                    {book.comments.data.map((comment: BookComment) => (
+                    {book?.comments?.data.map((comment: BookComment) => (
                         <div key={comment.id} className="bg-card p-4 rounded-lg shadow-sm">
                             <p className="text-sm text-muted-foreground">
                                 {comment.user?.username || "Anonymous"} • {new Date(comment.createdAt).toLocaleDateString()}

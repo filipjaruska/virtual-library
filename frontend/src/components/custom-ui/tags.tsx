@@ -1,5 +1,6 @@
 import React from 'react';
 import {Badge} from "@/components/ui/badge";
+import {Tag} from "@/lib/types/books";
 
 export default function Tags({tags}: {tags: Tag[]}) {
     return (
