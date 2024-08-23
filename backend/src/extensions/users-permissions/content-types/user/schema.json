@@ -80,6 +80,12 @@
       ],
       "type": "media",
       "multiple": false
+    },
+    "comments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comment.comment",
+      "mappedBy": "user"
     }
   }
 }

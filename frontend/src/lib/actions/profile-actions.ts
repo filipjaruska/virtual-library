@@ -67,7 +67,6 @@ const ACCEPTED_IMAGE_TYPES = [
     "image/webp",
 ];
 
-// VALIDATE IMAGE WITH ZOD 
 const imageSchema = z.object({
     image: z
         .any()
@@ -88,17 +87,14 @@ export async function uploadProfileImageAction(
     prevState: any,
     formData: FormData
 ) {
-
-    // GET THE LOGGED IN USER
+    
     const user = await getUserMeLoader();
     if (!user.ok) throw new Error("You are not authorized to perform this action.");
 
     const userId = user.data.id;
-
-    // CONVERT FORM DATA TO OBJECT
+    
     const data = Object.fromEntries(formData);
-
-    // VALIDATE THE IMAGE
+    
     const validatedFields = imageSchema.safeParse({
         image: data.image,
     });

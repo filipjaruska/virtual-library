@@ -1,11 +1,11 @@
 import qs from "qs";
-import { unstable_noStore as noStore} from "next/cache"; //TODO remove later
-import { flattenAttributes, getStrapiURL } from "@/lib/utils";
+import {unstable_noStore as noStore} from "next/cache"; //TODO reimplement aka learn caching 
+import {flattenAttributes, getStrapiURL} from "@/lib/utils";
 
 const baseUrl = getStrapiURL();
 
 async function fetchData(url: string) {
-    const authToken = null;
+    const authToken = null; //TODO FIX SECURITY ISSUES
     const headers = {
         method: "GET",
         headers: {
@@ -24,7 +24,8 @@ async function fetchData(url: string) {
     }
 }
 
-export async function getBookData(bookId: String) {
+export async function getBookData(bookId: string) {
+    noStore()
     const url = new URL(`/api/books/${bookId}`, baseUrl);
     url.search = qs.stringify({
         populate: {
@@ -34,10 +35,20 @@ export async function getBookData(bookId: String) {
             tags: {
                 fields: ["name"],
             },
+            comments: {
+                populate: {
+                    user: {
+                        fields: ["id", "username"],
+                    },
+                },
+                fields: ["content", "createdAt"],
+            },
         },
     });
+
     return await fetchData(url.href);
 }
+
 
 export async function getBooksPageData(
     searchQuery: string = "",
@@ -78,10 +89,6 @@ export async function getBooksPageData(
     return await fetchData(url.href);
 }
 
-export async function getComments(){
-    
-}
-
 export async function getHomePageData() {
     noStore()
     const url = new URL("/api/home-page", baseUrl)
@@ -108,11 +115,11 @@ export async function getHomePageData() {
     return await fetchData(url.href)
 }
 
-export async function getGlobalPageData(){
+export async function getGlobalPageData() {
     noStore()
     const url = new URL("/api/global", baseUrl)
     url.search = qs.stringify({
-        populate:[
+        populate: [
             "header.logoText",
             "header.ctaButton",
             "footer.logoText",
@@ -122,7 +129,7 @@ export async function getGlobalPageData(){
     return await fetchData(url.href)
 }
 
-export async function getGlobalPageMetadata(){
+export async function getGlobalPageMetadata() {
     const url = new URL("/api/global", baseUrl);
     url.search = qs.stringify({
         fields: ["title", "description"],

@@ -33,6 +33,11 @@
       "type": "component",
       "repeatable": true,
       "component": "components.tag"
+    },
+    "comments": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::comment.comment"
     }
   }
 }
