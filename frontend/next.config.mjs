@@ -10,7 +10,7 @@ const nextConfig = {
             },
             {
                 protocol: "https",
-                hostname: "https://tasteful-respect-ed15c7ec66.media.strapiapp.com",
+                hostname: "tasteful-respect-ed15c7ec66.media.strapiapp.com",
             }
         ],
     },

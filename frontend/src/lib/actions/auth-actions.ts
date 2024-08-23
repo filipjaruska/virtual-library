@@ -1,16 +1,16 @@
-"use server"
-import {z} from "zod";
-import {cookies} from "next/headers";
+"use server";
+import { z } from "zod";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import {loginUserService, registerUserService} from "@/lib/services/auth-service";
-import {redirect} from "next/navigation";
 
 const config = {
-    maxAge: 60*60*24*7,
+    maxAge: 60 * 60 * 24 * 7,
     path: "/",
     domain: process.env.HOST ?? "localhost",
-    httpOnly: false,
+    httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-}
+};
 
 const schemaRegister = z.object({
     username: z.string().min(3).max(20, {
@@ -24,42 +24,46 @@ const schemaRegister = z.object({
     }),
 });
 
-export async function registerUserAction(prevState: any,  formData: FormData) {
+export async function registerUserAction(prevState: any, formData: FormData) {
     const validatedFields = schemaRegister.safeParse({
         username: formData.get("username"),
         password: formData.get("password"),
         email: formData.get("email"),
-    })
-    
-    if (!validatedFields.success){
+    });
+
+    if (!validatedFields.success) {
         return {
             ...prevState,
-            zodError: validatedFields.error.flatten().fieldErrors,
-            message: validatedFields.error.message,
-        }
+            zodErrors: validatedFields.error.flatten().fieldErrors,
+            strapiErrors: null,
+            message: "Missing Fields. Failed to Register.",
+        };
     }
+
     const responseData = await registerUserService(validatedFields.data);
+
     if (!responseData) {
         return {
             ...prevState,
-            strapiError: null,
+            strapiErrors: null,
             zodErrors: null,
             message: "Ops! Something went wrong. Please try again.",
         };
     }
+
     if (responseData.error) {
         return {
             ...prevState,
-            strapiError: responseData.error,
+            strapiErrors: responseData.error,
             zodErrors: null,
             message: "Failed to Register.",
         };
     }
-    
-    cookies().set('jwt', responseData.jwt, config);
-    
-    redirect("/")
+
+    cookies().set("jwt", responseData.jwt, config);
+    redirect("/books");
 }
+
 const schemaLogin = z.object({
     identifier: z
         .string()
@@ -88,7 +92,7 @@ export async function loginUserAction(prevState: any, formData: FormData) {
     if (!validatedFields.success) {
         return {
             ...prevState,
-            zodError: validatedFields.error.flatten().fieldErrors,
+            zodErrors: validatedFields.error.flatten().fieldErrors,
             message: "Missing Fields. Failed to Login.",
         };
     }
@@ -99,7 +103,7 @@ export async function loginUserAction(prevState: any, formData: FormData) {
         return {
             ...prevState,
             strapiErrors: responseData.error,
-            zodError: null,
+            zodErrors: null,
             message: "Ops! Something went wrong. Please try again.",
         };
     }
@@ -108,14 +112,13 @@ export async function loginUserAction(prevState: any, formData: FormData) {
         return {
             ...prevState,
             strapiErrors: responseData.error,
-            zodError: null,
+            zodErrors: null,
             message: "Failed to Login.",
         };
     }
 
-    cookies().set("jwt", responseData.jwt, config);
-
-    redirect("/");
+    cookies().set("jwt", responseData.jwt);
+    redirect("/books");
 }
 
 export async function logoutAction() {
