@@ -13,7 +13,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {ModeToggle} from "@/components/ui/theme-toggle";
-import {getStrapiURL} from "@/lib/utils";
 
 interface HeaderProps {
     data: {
