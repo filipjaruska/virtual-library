@@ -6,7 +6,8 @@ import { FaSearch } from "react-icons/fa";
 import { getBooksPageData } from "@/lib/loaders";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/custom-ui/pagination";
-import {Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {MdKeyboardCommandKey} from "react-icons/md";
 
 export default function Page() {
     const router = useRouter();
@@ -51,7 +52,7 @@ export default function Page() {
 
         router.push(newUrl.toString(), { scroll: false });
     };
-    
+
     const handlePageChange = (newPage: number) => {
         setPage(newPage);
 
@@ -75,18 +76,41 @@ export default function Page() {
         router.push(newUrl.toString(), { scroll: false });
     };
 
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const searchInput = document.getElementById('search-input') as HTMLInputElement;
+            if (event.ctrlKey && event.key === 'f') {
+                event.preventDefault();
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            } else if (event.key === 'Escape' && document.activeElement === searchInput) {
+                searchInput.blur();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, []);
+
     return (
         <>
             <header className="flex items-center justify-between bg-secondary px-2 py-2 border-b border-primary">
-                <BooksNavigationMenu/>
-                <div className="relative">
+                <BooksNavigationMenu />
+                <div className="relative flex items-center">
                     <input
+                        id="search-input"
                         type="text"
                         placeholder="Search..."
                         value={searchQuery}
                         className="px-4 py-2 rounded-full border border-primary bg-card min-w-fit lg:min-w-96 ml-2"
                         onChange={handleSearchChange}
                     />
+                    <span className="absolute right-10 text-gray-500 flex items-center">
+                        <MdKeyboardCommandKey/>+F
+                    </span>
                     <FaSearch
                         className="absolute right-3 top-2/4 transform -translate-y-2/4 text-card-foreground"
                     />
@@ -94,7 +118,7 @@ export default function Page() {
                 <div className="ml-4">
                     <Select value={sort} onValueChange={handleSortChange}>
                         <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Sort by"/>
+                            <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
@@ -107,7 +131,7 @@ export default function Page() {
                     </Select>
                 </div>
             </header>
-            <BookGrid books={books}/>
+            <BookGrid books={books} />
             <Pagination
                 currentPage={page}
                 totalPages={totalPages}
