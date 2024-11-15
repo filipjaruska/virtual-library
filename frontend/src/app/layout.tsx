@@ -6,6 +6,7 @@ import { getGlobalPageData, getGlobalPageMetadata } from "@/lib/loaders";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import ThemeProvider from "@/components/ui/theme-provider";
+import CommandBar from "@/components/custom-ui/command-bar";
 
 const roboto = Roboto({
     weight: ['400', '700'],
@@ -21,6 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
         description: metadata.description,
     }
 };
+
 
 export default async function RootLayout({
     children,
@@ -42,6 +44,7 @@ export default async function RootLayout({
                     <Header data={globalData.header} />
                     {children}
                     <Footer data={globalData.footer} />
+                    <CommandBar />
                 </ThemeProvider>
             </body>
         </html>

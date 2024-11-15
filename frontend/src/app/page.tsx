@@ -3,6 +3,7 @@ import { getHomePageData } from "@/lib/loaders";
 import { HeroSection } from "@/components/section/hero-section";
 import { FeatureSection } from "@/components/section/features-section";
 import QnaSection from "@/components/section/qna-section";
+import KBarInfoPopup from "@/components/custom-ui/command-bar-info-popup";
 
 function blockRenderer(block: any) {
     const key = `${block.__component}-${block.id}`;
@@ -26,6 +27,7 @@ export default async function Home() {
     return (
         <main>
             {blocks.map((block: any) => blockRenderer(block))}
+            <KBarInfoPopup />
         </main>
     );
 }
