@@ -40,7 +40,7 @@ export async function Header({ data }: Readonly<HeaderProps>) {
                     <SiBookstack className="min-h-10 min-w-10" />
                     <div className="text-2xl font-bold font-mono">{logoText.text}</div>
                 </Link>
-                <BreadcrumbsNavigation />
+                <BreadcrumbsNavigation className="hidden md:flex" />
             </div>
             <div style={{ userSelect: "none" }} className="flex items-center gap-4">
                 <ModeToggle />

@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { ChevronRight } from "lucide-react"
 
-export function BreadcrumbsNavigation() {
+export function BreadcrumbsNavigation({ className }: { className?: string }) {
     const pathname = usePathname()
     const isBookRoute = pathname === '/' || pathname.startsWith('/books') || pathname.startsWith('/dashboard')
     const pathSegments = pathname === '/' ? ['books'] : pathname.split('/').filter(Boolean)
@@ -12,7 +12,7 @@ export function BreadcrumbsNavigation() {
     if (!isBookRoute) return null
 
     return (
-        <nav aria-label="Breadcrumb" className="py-2 bg-secondary">
+        <nav aria-label="Breadcrumb" className={`py-2 bg-secondary ${className}`}>
             <ol className="flex flex-row items-center space-x-2 text-xl font-semibold">
                 {pathname === '/' ? (
                     <div className="flex flex-row items-center">
