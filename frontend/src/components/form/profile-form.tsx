@@ -1,7 +1,6 @@
 "use client";
-import React from "react";
+import React, { useActionState } from "react";
 
-import {useFormState} from "react-dom";
 import {updateProfileAction} from "@/lib/actions/profile-actions"
 
 import { cn } from "@/lib/utils";
@@ -35,7 +34,7 @@ export function ProfileForm({
     readonly className?: string;
 }) {
     const updateUserWithId = updateProfileAction.bind(null, data.id)
-    const [formState, formAction] = useFormState(
+    const [formState, formAction] = useActionState(
         updateUserWithId,
         INITIAL_STATE
     )

@@ -6,7 +6,8 @@ import {Book, BookComment} from "@/lib/types/books";
 import CreateCommentForm from "@/components/form/comment-form";
 import {getUserMeLoader} from "@/lib/services/get-user-me-loader";
 
-export default async function Page({params}: { params: { id: string } }) {
+export default async function Page(props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const book: Book = await getBookData(String(params.id));
     const user: any = await getUserMeLoader()
     return (

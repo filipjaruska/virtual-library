@@ -36,7 +36,7 @@ function ImageCard({
                        fileInput,
                    }: {
     readonly dataUrl: string;
-    readonly fileInput: React.RefObject<HTMLInputElement>;
+    readonly fileInput: React.RefObject<HTMLInputElement | null>;
 }) {
     const imagePreview = dataUrl ? <ImagePreview dataUrl={dataUrl} /> : <p>No image selected</p>;
 

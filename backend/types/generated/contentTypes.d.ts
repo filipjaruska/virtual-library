@@ -362,6 +362,143 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
+export interface ApiBookBook extends Schema.CollectionType {
+  collectionName: 'books';
+  info: {
+    singularName: 'book';
+    pluralName: 'books';
+    displayName: 'Book';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    author: Attribute.String;
+    description: Attribute.Text;
+    image: Attribute.Media<'images'>;
+    tags: Attribute.Component<'components.tag', true>;
+    comments: Attribute.Relation<
+      'api::book.book',
+      'oneToMany',
+      'api::comment.comment'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<'api::book.book', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<'api::book.book', 'oneToOne', 'admin::user'> &
+      Attribute.Private;
+  };
+}
+
+export interface ApiCommentComment extends Schema.CollectionType {
+  collectionName: 'comments';
+  info: {
+    singularName: 'comment';
+    pluralName: 'comments';
+    displayName: 'Comment';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    content: Attribute.Text;
+    user: Attribute.Relation<
+      'api::comment.comment',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::comment.comment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::comment.comment',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiGlobalGlobal extends Schema.SingleType {
+  collectionName: 'globals';
+  info: {
+    singularName: 'global';
+    pluralName: 'globals';
+    displayName: 'Global';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    description: Attribute.Text;
+    header: Attribute.Component<'layout.header'>;
+    footer: Attribute.Component<'layout.footer'>;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::global.global',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::global.global',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
+export interface ApiHomePageHomePage extends Schema.SingleType {
+  collectionName: 'home_pages';
+  info: {
+    singularName: 'home-page';
+    pluralName: 'home-pages';
+    displayName: 'Home Page';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String;
+    description: Attribute.Text;
+    blocks: Attribute.DynamicZone<
+      ['layout.hero-section', 'layout.features-section', 'layout.qna-section']
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::home-page.home-page',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::home-page.home-page',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -796,143 +933,6 @@ export interface PluginI18NLocale extends Schema.CollectionType {
   };
 }
 
-export interface ApiBookBook extends Schema.CollectionType {
-  collectionName: 'books';
-  info: {
-    singularName: 'book';
-    pluralName: 'books';
-    displayName: 'Book';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    title: Attribute.String;
-    author: Attribute.String;
-    description: Attribute.Text;
-    image: Attribute.Media<'images'>;
-    tags: Attribute.Component<'components.tag', true>;
-    comments: Attribute.Relation<
-      'api::book.book',
-      'oneToMany',
-      'api::comment.comment'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<'api::book.book', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<'api::book.book', 'oneToOne', 'admin::user'> &
-      Attribute.Private;
-  };
-}
-
-export interface ApiCommentComment extends Schema.CollectionType {
-  collectionName: 'comments';
-  info: {
-    singularName: 'comment';
-    pluralName: 'comments';
-    displayName: 'Comment';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    content: Attribute.Text;
-    user: Attribute.Relation<
-      'api::comment.comment',
-      'manyToOne',
-      'plugin::users-permissions.user'
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::comment.comment',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::comment.comment',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiGlobalGlobal extends Schema.SingleType {
-  collectionName: 'globals';
-  info: {
-    singularName: 'global';
-    pluralName: 'globals';
-    displayName: 'Global';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    title: Attribute.String;
-    description: Attribute.Text;
-    header: Attribute.Component<'layout.header'>;
-    footer: Attribute.Component<'layout.footer'>;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::global.global',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::global.global',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
-export interface ApiHomePageHomePage extends Schema.SingleType {
-  collectionName: 'home_pages';
-  info: {
-    singularName: 'home-page';
-    pluralName: 'home-pages';
-    displayName: 'Home Page';
-    description: '';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    title: Attribute.String;
-    description: Attribute.Text;
-    blocks: Attribute.DynamicZone<
-      ['layout.hero-section', 'layout.features-section', 'layout.qna-section']
-    >;
-    createdAt: Attribute.DateTime;
-    updatedAt: Attribute.DateTime;
-    publishedAt: Attribute.DateTime;
-    createdBy: Attribute.Relation<
-      'api::home-page.home-page',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-    updatedBy: Attribute.Relation<
-      'api::home-page.home-page',
-      'oneToOne',
-      'admin::user'
-    > &
-      Attribute.Private;
-  };
-}
-
 declare module '@strapi/types' {
   export module Shared {
     export interface ContentTypes {
@@ -943,6 +943,10 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
+      'api::book.book': ApiBookBook;
+      'api::comment.comment': ApiCommentComment;
+      'api::global.global': ApiGlobalGlobal;
+      'api::home-page.home-page': ApiHomePageHomePage;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::content-releases.release': PluginContentReleasesRelease;
@@ -951,10 +955,6 @@ declare module '@strapi/types' {
       'plugin::users-permissions.role': PluginUsersPermissionsRole;
       'plugin::users-permissions.user': PluginUsersPermissionsUser;
       'plugin::i18n.locale': PluginI18NLocale;
-      'api::book.book': ApiBookBook;
-      'api::comment.comment': ApiCommentComment;
-      'api::global.global': ApiGlobalGlobal;
-      'api::home-page.home-page': ApiHomePageHomePage;
     }
   }
 }

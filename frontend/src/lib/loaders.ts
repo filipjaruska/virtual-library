@@ -1,138 +1,132 @@
 import qs from "qs";
-import {unstable_noStore as noStore} from "next/cache"; //TODO reimplement aka learn caching 
-import {flattenAttributes, getStrapiURL} from "@/lib/utils";
+import { flattenAttributes, getStrapiURL } from "@/lib/utils";
 
 const baseUrl = getStrapiURL();
 
 async function fetchData(url: string) {
-    const authToken = null; //TODO FIX SECURITY ISSUES
-    const headers = {
-        method: "GET",
-        headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-        },
-    };
+  const authToken = null; //TODO await getAuthToken();
+  const headers = {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${authToken}`,
+    },
+  };
 
-    try {
-        const response = await fetch(url, authToken ? headers : {});
-        const data = await response.json();
-        return flattenAttributes(data);
-    } catch (error) {
-        console.error("Error fetching data:", error);
-        throw error;
-    }
+  try {
+    const response = await fetch(url, authToken ? headers : {});
+    const data = await response.json();
+    return flattenAttributes(data);
+  } catch (error) {
+    console.error("Error fetching data:", error);
+    throw error;
+  }
 }
 
 export async function getBookData(bookId: string) {
-    noStore()
-    const url = new URL(`/api/books/${bookId}`, baseUrl);
-    url.search = qs.stringify({
+  const url = new URL(`/api/books/${bookId}`, baseUrl);
+  url.search = qs.stringify({
+    populate: {
+      image: {
+        fields: ["url", "alternativeText"],
+      },
+      tags: {
+        fields: ["name"],
+      },
+      comments: {
         populate: {
-            image: {
-                fields: ["url", "alternativeText"],
-            },
-            tags: {
-                fields: ["name"],
-            },
-            comments: {
-                populate: {
-                    user: {
-                        fields: ["id", "username"],
-                    },
-                },
-                fields: ["content", "createdAt"],
-            },
+          user: {
+            fields: ["id", "username"],
+          },
         },
-    });
+        fields: ["content", "createdAt"],
+      },
+    },
+  });
 
-    return await fetchData(url.href);
+  return await fetchData(url.href);
 }
 
-
 export async function getBooksPageData(
-    searchQuery: string = "",
-    tag: string = "",
-    page: number = 1,
-    pageSize: number = 24,
-    sort: string = "title:asc"
+  searchQuery: string = "",
+  tag: string = "",
+  page: number = 1,
+  pageSize: number = 24,
+  sort: string = "title:asc"
 ) {
-    noStore();
-    const url = new URL("/api/books", baseUrl);
-    url.search = qs.stringify({
-        filters: {
-            ...(searchQuery && {
-                title: {
-                    $containsi: searchQuery,
-                },
-            }),
-            ...(tag && {
-                tags: {
-                    name: tag,
-                },
-            }),
+  const url = new URL("/api/books", baseUrl);
+  url.search = qs.stringify({
+    filters: {
+      ...(searchQuery && {
+        title: {
+          $containsi: searchQuery,
         },
-        pagination: {
-            page: page,
-            pageSize: pageSize,
+      }),
+      ...(tag && {
+        tags: {
+          name: tag,
         },
-        sort: sort,
-        populate: {
-            image: {
-                fields: ["url", "alternativeText"],
-            },
-            tags: {
-                fields: ["name"],
-            },
-        },
-    });
-    return await fetchData(url.href);
+      }),
+    },
+    pagination: {
+      page: page,
+      pageSize: pageSize,
+    },
+    sort: sort,
+    populate: {
+      image: {
+        fields: ["url", "alternativeText"],
+      },
+      tags: {
+        fields: ["name"],
+      },
+    },
+  });
+  return await fetchData(url.href);
 }
 
 export async function getHomePageData() {
-    noStore()
-    const url = new URL("/api/home-page", baseUrl)
-    url.search = qs.stringify({
+  const url = new URL("/api/home-page", baseUrl);
+  url.search = qs.stringify({
+    populate: {
+      blocks: {
         populate: {
-            blocks: {
-                populate: {
-                    image: {
-                        fields: ["url", "alternativeText"],
-                    },
-                    link: {
-                        populate: true,
-                    },
-                    feature: {
-                        populate: true
-                    },
-                    qnas: {
-                        populate: true
-                    }
-                }
-            }
-        }
-    })
-    return await fetchData(url.href)
+          image: {
+            fields: ["url", "alternativeText"],
+          },
+          link: {
+            populate: true,
+          },
+          feature: {
+            populate: true,
+          },
+          qnas: {
+            populate: true,
+          },
+        },
+      },
+    },
+  });
+  return await fetchData(url.href);
 }
 
 export async function getGlobalPageData() {
-    noStore()
-    const url = new URL("/api/global", baseUrl)
-    url.search = qs.stringify({
-        populate: [
-            "header.logoText",
-            "header.ctaButton",
-            "footer.logoText",
-            "footer.socialLink",
-        ]
-    })
-    return await fetchData(url.href)
+  const url = new URL("/api/global", baseUrl);
+  url.search = qs.stringify({
+    populate: [
+      "header.logoText",
+      "header.ctaButton",
+      "footer.logoText",
+      "footer.socialLink",
+    ],
+  });
+  return await fetchData(url.href);
 }
 
 export async function getGlobalPageMetadata() {
-    const url = new URL("/api/global", baseUrl);
-    url.search = qs.stringify({
-        fields: ["title", "description"],
-    })
-    return await fetchData(url.href)
+  const url = new URL("/api/global", baseUrl);
+  url.search = qs.stringify({
+    fields: ["title", "description"],
+  });
+  return await fetchData(url.href);
 }

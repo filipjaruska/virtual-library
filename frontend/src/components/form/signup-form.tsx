@@ -1,7 +1,7 @@
 "use client";
+import { useActionState } from "react";
 
 import Link from "next/link";
-import { useFormState } from "react-dom";
 
 import {
     CardTitle,
@@ -26,7 +26,7 @@ const INITIAL_STATE = {
 };
 
 export function SignupForm() {
-    const [formState, formAction] = useFormState(registerUserAction, INITIAL_STATE);
+    const [formState, formAction] = useActionState(registerUserAction, INITIAL_STATE);
     return (
         <div className="w-full max-w-md">
             <form action={formAction}>
@@ -46,7 +46,7 @@ export function SignupForm() {
                                 type="text"
                                 placeholder="username"
                             />
-                            <ZodError error={formState?.zodError?.username}/>
+                            <ZodError error={formState?.zodError?.username} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
@@ -56,7 +56,7 @@ export function SignupForm() {
                                 type="email"
                                 placeholder="name@example.com"
                             />
-                            <ZodError error={formState?.zodError?.email}/>
+                            <ZodError error={formState?.zodError?.email} />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="password">Password</Label>
@@ -66,12 +66,12 @@ export function SignupForm() {
                                 type="password"
                                 placeholder="password"
                             />
-                            <ZodError error={formState?.zodError?.password}/>
+                            <ZodError error={formState?.zodError?.password} />
                         </div>
                     </CardContent>
                     <CardFooter className="flex flex-col">
                         <SubmitButton className="w-full bg-primary text-primary-foreground" text="Sign Up" loadingText="Loading" />
-                        <StrapiError error={formState?.strapiError}/>
+                        <StrapiError error={formState?.strapiError} />
                     </CardFooter>
                 </Card>
                 <div className="mt-4 text-center text-sm">

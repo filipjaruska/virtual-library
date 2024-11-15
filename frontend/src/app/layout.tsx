@@ -1,13 +1,18 @@
-import type {Metadata} from "next";
-import {Inter} from "next/font/google";
+import type { Metadata } from "next";
+import { Roboto } from "next/font/google";
 import "./globals.css";
-import {SpeedInsights} from "@vercel/speed-insights/next";
-import {getGlobalPageData, getGlobalPageMetadata} from "@/lib/loaders";
-import {Header} from "@/components/header";
-import {Footer} from "@/components/footer";
-import {ThemeProvider} from "@/components/ui/theme-provider";
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { getGlobalPageData, getGlobalPageMetadata } from "@/lib/loaders";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
+import ThemeProvider from "@/components/ui/theme-provider";
 
-const inter = Inter({subsets: ["latin"]});
+const roboto = Roboto({
+    weight: ['400', '700'],
+    style: ['normal', 'italic'],
+    subsets: ['latin'],
+    display: 'swap',
+})
 
 export async function generateMetadata(): Promise<Metadata> {
     const metadata: Metadata = await getGlobalPageMetadata();
@@ -18,27 +23,27 @@ export async function generateMetadata(): Promise<Metadata> {
 };
 
 export default async function RootLayout({
-                                             children,
-                                         }: Readonly<{
+    children,
+}: Readonly<{
     children: React.ReactNode;
 }>) {
     const globalData = await getGlobalPageData();
     return (
         <html lang="en">
-        <body className={inter.className}>
-        <SpeedInsights/>
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            themes={["light", "dark", "odark"]}
-            disableTransitionOnChange
-        >
-            <Header data={globalData.header}/>
-            {children}
-            <Footer data={globalData.footer}/>
-        </ThemeProvider>
-        </body>
+            <body className={roboto.className}>
+                <SpeedInsights />
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    themes={["light", "dark", "odark"]}
+                    disableTransitionOnChange
+                >
+                    <Header data={globalData.header} />
+                    {children}
+                    <Footer data={globalData.footer} />
+                </ThemeProvider>
+            </body>
         </html>
     );
 }

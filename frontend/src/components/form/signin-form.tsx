@@ -1,7 +1,7 @@
 "use client";
+import { useActionState } from "react";
 
 import Link from "next/link";
-import { useFormState } from "react-dom";
 import { loginUserAction } from "@/lib/actions/auth-actions";
 
 import {
@@ -27,7 +27,7 @@ const INITIAL_STATE = {
 };
 
 export function SigninForm() {
-    const [formState, formAction] = useFormState(loginUserAction, INITIAL_STATE);
+    const [formState, formAction] = useActionState(loginUserAction, INITIAL_STATE);
     return (
         <div className="w-full max-w-md">
             <form action={formAction}>

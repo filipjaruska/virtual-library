@@ -60,7 +60,7 @@ export async function registerUserAction(prevState: any, formData: FormData) {
         };
     }
 
-    cookies().set("jwt", responseData.jwt, config);
+    (await cookies()).set("jwt", responseData.jwt, config);
     redirect("/books");
 }
 
@@ -117,11 +117,11 @@ export async function loginUserAction(prevState: any, formData: FormData) {
         };
     }
 
-    cookies().set("jwt", responseData.jwt);
+    (await cookies()).set("jwt", responseData.jwt);
     redirect("/books");
 }
 
 export async function logoutAction() {
-    cookies().set("jwt", "", { ...config, maxAge: 0 });
+    (await cookies()).set("jwt", "", { ...config, maxAge: 0 });
     redirect("/");
 }
