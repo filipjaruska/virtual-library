@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/section/hero-section";
 import { FeatureSection } from "@/components/section/features-section";
 import QnaSection from "@/components/section/qna-section";
 import KBarInfoPopup from "@/components/custom-ui/command-bar-info-popup";
+import { getHidePopupCookie } from "@/lib/services/get-kbar-popup";
 
 function blockRenderer(block: any) {
     const key = `${block.__component}-${block.id}`;
@@ -21,13 +22,15 @@ function blockRenderer(block: any) {
 
 export default async function Home() {
     const strapiData = await getHomePageData();
+    const initialHidePopup = await getHidePopupCookie();
+    console.log("initialHidePopup", initialHidePopup);
     const { blocks } = strapiData;
     if (!blocks) return <div>No block found!</div>
     // console.dir(blocks, { depth: null });
     return (
         <main>
             {blocks.map((block: any) => blockRenderer(block))}
-            <KBarInfoPopup />
+            <KBarInfoPopup initialHidePopup={initialHidePopup} />
         </main>
     );
 }
