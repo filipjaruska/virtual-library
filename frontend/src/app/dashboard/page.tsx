@@ -1,51 +1,68 @@
-import React from 'react';
-import { FaUser } from "react-icons/fa";
-import { IoMdSettings } from "react-icons/io";
-import {ResizableHandle, ResizablePanel, ResizablePanelGroup} from "@/components/ui/resizable";
-import Link from "next/link";
+import { AreaChartComponent } from "@/components/custom-ui/area-chart";
+import PieChartComponent from "@/components/custom-ui/pie-chart";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BsBookshelf } from "react-icons/bs";
+import { FaComment } from "react-icons/fa";
+import { ImBooks } from "react-icons/im";
+import { MdDoNotDisturbOnTotalSilence } from "react-icons/md";
 
-export default function Page() {
+export default function Component() {
     return (
-        <div className="flex h-screen items-center justify-center">
-            <div className="container flex flex-col items-center justify-center">
-                <ResizablePanelGroup
-                    direction="horizontal"
-                    className="rounded-lg border"
-                    min-width="800px"
-                    min-height="600px"
-                >
-                    <ResizablePanel defaultSize={50} minSize={15}>
-                        <div className="flex h-[400px] items-center justify-center p-6">
-                            <Link href={"/dashboard/account"} className="flex flex-col items-center justify-center hover:text-primary">
-                            <FaUser className="h-24 w-24" />
-                            <span className="font-semibold pt-2">Account Setting</span>
-                            </Link>
-                        </div>
-                    </ResizablePanel>
-                    <ResizableHandle/>
-                    <ResizablePanel defaultSize={50} minSize={15}>
-                        <ResizablePanelGroup direction="vertical">
-                            <ResizablePanel defaultSize={25} minSize={15}>
-                                <div className="flex h-full items-center justify-center p-6">
-                                    <Link href={"/dashboard/account"} className="flex flex-col h-full items-center justify-center hover:text-primary">
-                                        <FaUser className="h-24 w-24" />
-                                        <span className="font-semibold pt-2">Account Setting</span>
-                                    </Link>
-                                </div>
-                            </ResizablePanel>
-                            <ResizableHandle/>
-                            <ResizablePanel defaultSize={75} minSize={15}>
-                                <div className="flex h-full items-center justify-center p-6">
-                                    <Link href={"/dashboard/account"} className="flex flex-col h-full items-center justify-center hover:text-primary">
-                                        <FaUser className="h-24 w-24" />
-                                        <span className="font-semibold pt-2">Account Setting</span>
-                                    </Link>
-                                </div>
-                            </ResizablePanel>
-                        </ResizablePanelGroup>
-                    </ResizablePanel>
-                </ResizablePanelGroup>
+        <div className="flex min-h-screen w-full flex-col bg-muted/40">
+            <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+                <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium">Total Borrowing</CardTitle>
+                                <ImBooks className="w-4 h-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">258</div>
+                                <p className="text-xs text-muted-foreground">Books</p>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium">Total Returns</CardTitle>
+                                <BsBookshelf className="w-4 h-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">56</div>
+                                <p className="text-xs text-muted-foreground">Books</p>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium">Total Comments</CardTitle>
+                                <FaComment className="w-4 h-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">434</div>
+                                <p className="text-xs text-muted-foreground">Comments</p>
+                            </CardContent>
+                        </Card>
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-sm font-medium">Total Total</CardTitle>
+                                <MdDoNotDisturbOnTotalSilence className="w-4 h-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent>
+                                <div className="text-2xl font-bold">16</div>
+                                <p className="text-xs text-muted-foreground">Total</p>
+                            </CardContent>
+                        </Card>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2">
+                        <Card>
+                            <PieChartComponent />
+                        </Card>
+                        <Card>
+                            <AreaChartComponent />
+                        </Card>
+                    </div>
+                </main>
             </div>
         </div>
-    );
+    )
 }

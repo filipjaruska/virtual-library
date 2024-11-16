@@ -7,7 +7,7 @@ import { getBooksPageData } from "@/lib/loaders";
 import { useRouter, useSearchParams } from "next/navigation";
 import Pagination from "@/components/custom-ui/pagination";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {MdKeyboardCommandKey} from "react-icons/md";
+import { MdKeyboardCommandKey } from "react-icons/md";
 
 export default function Page() {
     const router = useRouter();
@@ -105,11 +105,11 @@ export default function Page() {
                         type="text"
                         placeholder="Search..."
                         value={searchQuery}
-                        className="px-4 py-2 rounded-full border border-primary bg-card min-w-fit lg:min-w-96 ml-2"
+                        className="px-4 py-2 rounded-lg border border-primary bg-card min-w-fit lg:min-w-96 ml-2"
                         onChange={handleSearchChange}
                     />
                     <span className="absolute right-10 text-gray-500 flex items-center">
-                        <MdKeyboardCommandKey/>+F
+                        <MdKeyboardCommandKey />+F
                     </span>
                     <FaSearch
                         className="absolute right-3 top-2/4 transform -translate-y-2/4 text-card-foreground"

@@ -39,6 +39,7 @@ export async function Header({ data }: Readonly<HeaderProps>) {
                 <Link className="flex flex-row gap-4 items-center" href="/">
                     <SiBookstack className="min-h-10 min-w-10" />
                     <div className="text-2xl font-bold font-mono">{logoText.text}</div>
+                    <span className="sr-only">Virtual Library</span>
                 </Link>
                 <BreadcrumbsNavigation className="hidden md:flex" />
             </div>
