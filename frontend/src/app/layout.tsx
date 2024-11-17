@@ -1,12 +1,12 @@
+import CommandBar from "@/components/custom-ui/command-bar";
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
+import ThemeProvider from "@/components/ui/theme-provider";
+import { getGlobalPageData, getGlobalPageMetadata } from "@/lib/loaders";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import { SpeedInsights } from "@vercel/speed-insights/next";
-import { getGlobalPageData, getGlobalPageMetadata } from "@/lib/loaders";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
-import ThemeProvider from "@/components/ui/theme-provider";
-import CommandBar from "@/components/custom-ui/command-bar";
 
 const roboto = Roboto({
     weight: ['400', '700'],

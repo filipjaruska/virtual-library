@@ -1,5 +1,5 @@
 import Image from "next/image";
-import {getStrapiMedia} from "@/lib/utils";
+import { getStrapiMedia } from "@/lib/utils";
 
 interface StrapiImageProps {
     src: string;
@@ -18,10 +18,11 @@ export function StrapiImage({
 }: Readonly<StrapiImageProps>) {
     if (!src) return null;
     const imageUrl = getStrapiMedia(src);
+    console.log("Image URL in strapi-image.tsx: ", imageUrl);
     const imageFallback = `https://placehold.co/${width}x${height}`;
 
     return (
-        <Image
+        <img
             src={imageUrl ?? imageFallback}
             alt={alt}
             height={height}

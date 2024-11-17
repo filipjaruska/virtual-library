@@ -26,7 +26,7 @@ export default async function Home() {
     console.log("initialHidePopup", initialHidePopup);
     const { blocks } = strapiData;
     if (!blocks) return <div>No block found!</div>
-    // console.dir(blocks, { depth: null });
+    console.dir(blocks, { depth: null });
     return (
         <main>
             {blocks.map((block: any) => blockRenderer(block))}
