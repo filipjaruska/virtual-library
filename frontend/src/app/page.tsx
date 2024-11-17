@@ -23,10 +23,9 @@ function blockRenderer(block: any) {
 export default async function Home() {
     const strapiData = await getHomePageData();
     const initialHidePopup = await getHidePopupCookie();
-    console.log("initialHidePopup", initialHidePopup);
     const { blocks } = strapiData;
     if (!blocks) return <div>No block found!</div>
-    console.dir(blocks, { depth: null });
+    // console.dir(blocks, { depth: null });
     return (
         <main>
             {blocks.map((block: any) => blockRenderer(block))}

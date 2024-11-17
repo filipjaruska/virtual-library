@@ -26,7 +26,6 @@ interface HeroSectionProps {
 
 export function HeroSection({ data }: Readonly<HeroSectionProps>) {
     const { heading, subHeading, image, link } = data;
-    console.log("Image in hero-section: ", image);
     return (
         <header className="relative h-[600px] overflow-hidden">
             <StrapiImage

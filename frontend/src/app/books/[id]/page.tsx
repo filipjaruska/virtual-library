@@ -11,7 +11,6 @@ export default async function Page(props: { params: Promise<{ id: string }> }) {
     const params = await props.params;
     const book: Book = await getBookData(String(params.id));
     const user: any = await getUserMeLoader()
-    console.log("Book in page.tsx: ", book);
     return (
         <div className="mx-auto py-8 px-4 md:px-8">
             <div className="bg-card shadow-md rounded-lg flex flex-col md:flex-row overflow-hidden">
