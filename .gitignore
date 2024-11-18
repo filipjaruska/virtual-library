@@ -30,3 +30,6 @@
 next-env.d.ts
 frontend/.vscode/settings.json
 /frontend/.vscode
+
+
+./backend/package-lock.json
