@@ -10,7 +10,10 @@ import {
 const config = {
   maxAge: 60 * 60 * 24 * 7,
   path: "/",
-  domain: process.env.HOST ?? "localhost",
+  domain:
+    process.env.NODE_ENV === "production"
+      ? process.env.PRODUCTION_HOST
+      : "localhost",
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
 };
@@ -143,6 +146,8 @@ export async function loginUserAction(prevState: any, formData: FormData) {
 }
 
 export async function logoutAction() {
+  "use server";
   const jar = await cookies();
   jar.set("jwt", "", { ...config, maxAge: 0 });
+  jar.delete("jwt");
 }
