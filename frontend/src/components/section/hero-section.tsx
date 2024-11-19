@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { StrapiImage } from "@/components/ui/strapi-image";
+import { Image } from "@/lib/types/image";
 
-interface ImageProps {
-    id: number;
-    url: string;
-    alternativeText: string;
-}
+
 
 interface LinkProps {
     id: number;
@@ -19,7 +16,7 @@ interface HeroSectionProps {
         __component: string;
         heading: string;
         subHeading: string;
-        image: ImageProps;
+        image: Image;
         link: LinkProps;
     }
 }
@@ -32,8 +29,9 @@ export function HeroSection({ data }: Readonly<HeroSectionProps>) {
                 alt="Background"
                 className="absolute inset-0 object-cover w-full h-full"
                 height={1080}
-                src={image.url}
+                src={image.formats?.large?.url || image.url}
                 width={1920}
+                style={{ userSelect: "none" }}
             />
             <div
                 className="relative z-10 flex flex-col items-center justify-center h-full text-center text-white bg-black bg-opacity-20">

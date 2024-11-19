@@ -15,7 +15,7 @@ export function ModeToggle() {
             case 'dark':
                 return 'dark'
             case 'odark':
-                return 'outline' // or any other variant you want for 'odark'
+                return 'outline'
             default:
                 return 'outline'
         }

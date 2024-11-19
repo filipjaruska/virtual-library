@@ -29,6 +29,7 @@ export function StrapiImage({
             width={width}
             className={className}
             style={style}
+            loading="lazy"
         />
     );
 }

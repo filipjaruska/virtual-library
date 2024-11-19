@@ -1,5 +1,5 @@
 import React from 'react';
-import {Accordion, AccordionContent, AccordionItem, AccordionTrigger} from "@/components/ui/accordion";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface QnaProps {
     id: number;
@@ -14,9 +14,8 @@ interface QnaSectionProps {
     qnas: QnaProps[],
 }
 
-export default function QnaSection({data}: { readonly data: QnaSectionProps }) {
-    // console.log(data)
-    const {title, qnas} = data;
+export default function QnaSection({ data }: { readonly data: QnaSectionProps }) {
+    const { title, qnas } = data;
     return (
         <section className="container px-4 py-6 mx-auto md:px-6 lg:py-24">
             <Accordion type="single" collapsible className="w-full md:w-1/2 mx-auto">

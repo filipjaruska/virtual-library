@@ -1,15 +1,16 @@
 import qs from "qs";
 import { flattenAttributes, getStrapiURL } from "@/lib/utils";
+import { getAuthToken } from "./services/get-token";
 
 const baseUrl = getStrapiURL();
 
 async function fetchData(url: string) {
-  const authToken = null; //TODO await getAuthToken();
+  const authToken = await getAuthToken();
   const headers = {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${authToken}`,
+      Authorization: `Bearer ${authToken || null}`,
     },
   };
 
@@ -28,7 +29,7 @@ export async function getBookData(bookId: string) {
   url.search = qs.stringify({
     populate: {
       image: {
-        fields: ["url", "alternativeText"],
+        fields: ["url", "alternativeText", "formats"],
       },
       tags: {
         fields: ["name"],
@@ -75,7 +76,7 @@ export async function getBooksPageData(
     sort: sort,
     populate: {
       image: {
-        fields: ["url", "alternativeText"],
+        fields: ["url", "alternativeText", "formats"],
       },
       tags: {
         fields: ["name"],
@@ -92,7 +93,7 @@ export async function getHomePageData() {
       blocks: {
         populate: {
           image: {
-            fields: ["url", "alternativeText"],
+            fields: ["url", "alternativeText", "formats"],
           },
           link: {
             populate: true,

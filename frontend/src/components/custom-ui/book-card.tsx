@@ -9,7 +9,7 @@ const BookCard: React.FC<Book> = ({ title, author, image, description, id, tags 
     return (
         <div className="shadow-md rounded-lg overflow-hidden border-2 hover:scale-105 hover:cursor-pointer">
             <Link href={"books/" + String(id)}>
-                <StrapiImage width={150} height={150} src={image.url} alt={title}
+                <StrapiImage width={150} height={150} src={image.formats?.medium?.url || image.url} alt={title}
                     className="w-full h-48 object-cover" />
                 <div className="p-4">
                     <h3 className="text-xl font-bold">{title}</h3>
