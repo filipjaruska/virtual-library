@@ -5,7 +5,7 @@ import { getAuthToken } from "./services/get-token";
 const baseUrl = getStrapiURL();
 
 async function fetchData(url: string) {
-  const authToken = null; // getAuthToken();
+  const authToken = await getAuthToken();
   const headers = {
     method: "GET",
     headers: {

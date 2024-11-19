@@ -87,8 +87,8 @@ const CommandBar = ({ children }: CommandBarProps) => {
             section: "Actions",
             shortcut: ["l", "o"],
             keywords: "logout, sign out, log out",
-            perform: () => (
-                logoutAction(),
+            perform: async () => (
+                await logoutAction(),
                 router.push("/")
             ),
             priority: 888,
