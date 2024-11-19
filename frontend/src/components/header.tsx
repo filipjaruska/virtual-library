@@ -53,7 +53,7 @@ export async function Header({ data }: Readonly<HeaderProps>) {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Avatar className="cursor-pointer hover:scale-105">
-                                <AvatarImage src={user.data.formats?.thumbnail?.url || user.data.image.url} alt="User Avatar" height={40} width={40} />
+                                {user.data.image && <AvatarImage src={user.data.image.formats?.thumbnail?.url || user.data.image.url} alt="User Avatar" height={40} width={40} />}
                                 <AvatarFallback>{user.data.username.slice(0, 2)}</AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
