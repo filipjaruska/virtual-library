@@ -25,9 +25,7 @@ export async function getUserMeLoader() {
       },
       cache: "no-cache",
     });
-    console.log("User Me Loader Response:", response); //TODO remove
     const data = await response.json();
-    console.log("User Me Loader Data:", data); //TODO remove
     if (data.error) return { ok: false, data: null, error: data.error };
     return { ok: true, data: data, error: null };
   } catch (error) {

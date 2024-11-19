@@ -2,11 +2,8 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getUserMeLoader } from "@/lib/services/get-user-me-loader";
 
-// TODO middleware the issue?
-
 export async function middleware(request: NextRequest) {
   const user = await getUserMeLoader();
-  console.log("User Middleware:", user); //TODO remove
   const currentPath = request.nextUrl.pathname;
 
   if (currentPath.startsWith("/dashboard") && user.ok === false) {
