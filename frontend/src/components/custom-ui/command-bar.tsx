@@ -1,6 +1,6 @@
 'use client'
 import React from 'react';
-import { KBarPortal, KBarPositioner, KBarAnimator, KBarSearch, useMatches, Action, KBarProvider, KBarResults } from 'kbar';
+import { KBarPortal, KBarPositioner, KBarAnimator, KBarSearch, useMatches, Action, KBarProvider, KBarResults, useKBar } from 'kbar';
 import { useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { FaBook, FaHome } from 'react-icons/fa';
@@ -87,7 +87,10 @@ const CommandBar = ({ children }: CommandBarProps) => {
             section: "Actions",
             shortcut: ["l", "o"],
             keywords: "logout, sign out, log out",
-            perform: () => logoutAction(),
+            perform: () => (
+                logoutAction(),
+                router.push("/")
+            ),
             priority: 888,
             icon: <MdOutlineLogout className="w-5 h-5" />,
         },

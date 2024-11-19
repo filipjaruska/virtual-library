@@ -143,6 +143,6 @@ export async function loginUserAction(prevState: any, formData: FormData) {
 }
 
 export async function logoutAction() {
-  (await cookies()).set("jwt", "", { ...config, maxAge: 0 });
-  redirect("/");
+  const jar = await cookies();
+  jar.set("jwt", "", { ...config, maxAge: 0 });
 }
