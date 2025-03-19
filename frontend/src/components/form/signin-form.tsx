@@ -19,7 +19,7 @@ import { ZodError } from "@/components/ui/zod-error";
 import { StrapiError } from "@/components/ui/strapi-error";
 import { SubmitButton } from "@/components/ui/submit-button";
 
-const INITIAL_STATE = {
+const initialState = {
     zodError: null,
     strapiError: null,
     data: null,
@@ -27,7 +27,7 @@ const INITIAL_STATE = {
 };
 
 export function SigninForm() {
-    const [formState, formAction] = useActionState(loginUserAction, INITIAL_STATE);
+    const [formState, formAction] = useActionState(loginUserAction, initialState);
     return (
         <div className="w-full max-w-md">
             <form action={formAction}>

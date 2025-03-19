@@ -31,7 +31,6 @@ const schemaRegister = z.object({
 });
 
 export async function registerUserAction(prevState: any, formData: FormData) {
-  console.log("Register User Action: Start");
   const validatedFields = schemaRegister.safeParse({
     username: formData.get("username"),
     password: formData.get("password"),
@@ -52,7 +51,6 @@ export async function registerUserAction(prevState: any, formData: FormData) {
   }
 
   const responseData = await registerUserService(validatedFields.data);
-  console.log("Register User Service Response:", responseData);
 
   if (!responseData) {
     console.error("Service Error: No response data");
@@ -75,7 +73,6 @@ export async function registerUserAction(prevState: any, formData: FormData) {
   }
 
   (await cookies()).set("jwt", responseData.jwt, config);
-  console.log("JWT Cookie Set:", responseData.jwt);
   redirect("/books");
 }
 
@@ -99,7 +96,6 @@ const schemaLogin = z.object({
 });
 
 export async function loginUserAction(prevState: any, formData: FormData) {
-  console.log("Login User Action: Start");
   const validatedFields = schemaLogin.safeParse({
     identifier: formData.get("identifier"),
     password: formData.get("password"),
@@ -118,7 +114,6 @@ export async function loginUserAction(prevState: any, formData: FormData) {
   }
 
   const responseData = await loginUserService(validatedFields.data);
-  console.log("Login User Service Response:", responseData);
 
   if (!responseData) {
     console.error("Service Error: No response data");
@@ -141,7 +136,6 @@ export async function loginUserAction(prevState: any, formData: FormData) {
   }
 
   (await cookies()).set("jwt", responseData.jwt);
-  console.log("JWT Cookie Set:", responseData.jwt);
   redirect("/books");
 }
 

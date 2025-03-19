@@ -12,7 +12,7 @@ export function BreadcrumbsNavigation({ className }: { className?: string }) {
     if (!isBookRoute) return null
 
     return (
-        <nav aria-label="Breadcrumb" className={`py-2 bg-secondary ${className}`}>
+        <nav aria-label="Breadcrumb" className={`py-2 bg-secondary ${className}`} tabIndex={-1}>
             <ol className="flex flex-row items-center space-x-2 text-xl font-semibold">
                 {pathname === '/' ? (
                     <div className="flex flex-row items-center">

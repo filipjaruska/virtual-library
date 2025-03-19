@@ -20,7 +20,7 @@ function blockRenderer(block: any) {
     }
 }
 
-export default async function Home() {
+export default async function HomePage() {
     const strapiData = await getHomePageData();
     const initialHidePopup = await getHidePopupCookie();
     const { blocks } = strapiData;
