@@ -1,4 +1,6 @@
+'use client';
 import { getStrapiMedia } from "@/lib/utils";
+import { useState } from "react";
 
 interface StrapiImageProps {
     src: string;
@@ -17,13 +19,16 @@ export function StrapiImage({
     className,
     style,
 }: Readonly<StrapiImageProps>) {
-    if (!src) return null;
-    const imageUrl = getStrapiMedia(src);
+    const [hasError, setHasError] = useState(false);
+
     const imageFallback = `https://placehold.co/${width}x${height}`;
+    const imageUrl = src ? getStrapiMedia(src) : null;
+
+    const finalSrc = (!src || hasError) ? imageFallback : (imageUrl ?? imageFallback);
 
     return (
         <img
-            src={imageUrl ?? imageFallback}
+            src={finalSrc}
             alt={alt}
             height={height}
             width={width}
@@ -31,6 +36,7 @@ export function StrapiImage({
             style={style}
             decoding="async"
             loading="lazy"
+            onError={() => setHasError(true)}
         />
     );
 }
