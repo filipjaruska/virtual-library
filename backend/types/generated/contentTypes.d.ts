@@ -818,6 +818,7 @@ export interface ApiBookBook extends Schema.CollectionType {
       'oneToMany',
       'api::comment.comment'
     >;
+    slug: Attribute.String & Attribute.Required & Attribute.Unique;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

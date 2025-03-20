@@ -24,9 +24,14 @@ async function fetchData(url: string) {
   }
 }
 
-export async function getBookData(bookId: string) {
-  const url = new URL(`/api/books/${bookId}`, baseUrl);
+export async function getBookData(slug: string) {
+  const url = new URL("/api/books", baseUrl);
   url.search = qs.stringify({
+    filters: {
+      slug: {
+        $eq: slug,
+      },
+    },
     populate: {
       image: {
         fields: ["url", "alternativeText", "formats"],
@@ -45,7 +50,11 @@ export async function getBookData(bookId: string) {
     },
   });
 
-  return await fetchData(url.href);
+  const response = await fetchData(url.href);
+  if (!response.data || response.data.length === 0) {
+    return null;
+  }
+  return response.data[0];
 }
 
 export async function getBooksPageData(
@@ -74,6 +83,7 @@ export async function getBooksPageData(
       pageSize: pageSize,
     },
     sort: sort,
+    fields: ["title", "author", "description", "slug"],
     populate: {
       image: {
         fields: ["url", "alternativeText", "formats"],

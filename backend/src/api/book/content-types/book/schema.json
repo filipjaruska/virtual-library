@@ -38,6 +38,11 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::comment.comment"
+    },
+    "slug": {
+      "type": "string",
+      "unique": true,
+      "required": true
     }
   }
 }

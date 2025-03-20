@@ -8,6 +8,7 @@ export interface Book {
   title: string;
   author: string;
   description: string;
+  slug: string;
   image: Image;
   tags: Tag[];
   comments?: CommentsData;

@@ -1,19 +1,20 @@
 import React from "react";
 import BookCard from "@/components/custom-ui/book-card";
-import {Books} from "@/lib/types/books";
+import { Books } from "@/lib/types/books";
 
 
 function BookGrid({ books }: Books) {
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 p-4">
             {books.map((book) => (
-                <BookCard 
+                <BookCard
                     id={book.id}
                     key={book.id}
                     title={truncateTitle(book.title)}
                     author={book.author}
                     tags={book.tags}
                     image={book.image}
+                    slug={book.slug}
                     description={truncateDescription(book.description)}
                 />
             ))}

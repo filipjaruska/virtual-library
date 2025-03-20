@@ -94,6 +94,7 @@ export default function Page() {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
+    console.log(books);
 
     return (
         <>
