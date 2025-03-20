@@ -18,7 +18,7 @@ export default function Page() {
     const [tag, setTag] = useState(searchParams.get("tag") || "");
     const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 24));
     const [totalPages, setTotalPages] = useState(1);
-    const [sort, setSort] = useState(searchParams.get("sort") || "title:asc");  // Default sort by title
+    const [sort, setSort] = useState(searchParams.get("sort") || "title:asc");
 
     useEffect(() => {
         setSearchQuery(searchParams.get("search") || "");

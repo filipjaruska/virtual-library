@@ -74,7 +74,7 @@ export interface ComponentsTag extends Schema.Component {
         'popular',
         'upcoming',
         'gold',
-        'sci-fy',
+        'sci-fi',
         'fiction',
         'romance novel',
         'thriller',
