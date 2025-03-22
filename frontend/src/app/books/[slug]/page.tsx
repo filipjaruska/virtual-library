@@ -7,10 +7,14 @@ import { getBookData } from "@/lib/loaders";
 import { getUserMeLoader } from "@/lib/services/get-user-me-loader";
 import { notFound } from 'next/navigation';
 import { Book, BookComment } from "@/lib/types/books";
+import { FavoriteButton } from '@/components/custom-ui/favorite-button';
+import { getFavoriteBooks } from '@/lib/actions/favorite-actions';
 
-export default async function BookPage({ params }: { params: { slug: string } }) {
+export default async function BookPage(props: {
+    params: { slug: string }
+}) {
+    const params = await props.params; // This is a workaround for an error
     const bookData = await getBookData(params.slug);
-
     if (!bookData) {
         notFound();
     }
@@ -37,10 +41,7 @@ export default async function BookPage({ params }: { params: { slug: string } })
                         <Tags tags={bookData.tags} />
                     </div>
                     <div className="ml-auto">
-                        <Button
-                            className="bg-primary text-primary-foreground hover:bg-primary/90">
-                            Button
-                        </Button>
+                        <FavoriteButton bookId={bookData.id} />
                     </div>
                 </div>
             </div>

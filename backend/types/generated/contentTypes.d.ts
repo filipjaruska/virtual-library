@@ -779,6 +779,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'oneToMany',
       'api::comment.comment'
     >;
+    favoriteBooks: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'manyToMany',
+      'api::book.book'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -819,6 +824,11 @@ export interface ApiBookBook extends Schema.CollectionType {
       'api::comment.comment'
     >;
     slug: Attribute.String & Attribute.Required & Attribute.Unique;
+    favoritedBy: Attribute.Relation<
+      'api::book.book',
+      'manyToMany',
+      'plugin::users-permissions.user'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

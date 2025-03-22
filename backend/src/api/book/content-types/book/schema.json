@@ -43,6 +43,12 @@
       "type": "string",
       "unique": true,
       "required": true
+    },
+    "favoritedBy": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "plugin::users-permissions.user",
+      "mappedBy": "favoriteBooks"
     }
   }
 }
