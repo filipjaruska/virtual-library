@@ -11,6 +11,7 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "virtual-library-production.up.railway.app",
+        pathname: "/uploads/**/*",
       },
     ],
   },
