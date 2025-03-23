@@ -40,12 +40,11 @@ export default function DashboardSidebar() {
                         label="Dashboard"
                         isActive={pathname === '/dashboard'}
                     />
-                    {/* TODO */}
                     <NavItem
-                        href="/link"
+                        href="/dashboard/information"
                         icon={<FaInfoCircle className="h-5 w-5" />}
                         label="Information"
-                        isActive={pathname === '/link'}
+                        isActive={pathname === '/dashboard/information'}
                     />
                     <NavItem
                         href="/dashboard/account"

@@ -62,7 +62,7 @@ export function StrapiImage({
     if (!enableAnimation) {
         return (
             <img
-                src={finalSrc || "/placeholder.svg"}
+                src={finalSrc || imageFallback}
                 alt={alt}
                 height={height}
                 width={width}

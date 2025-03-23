@@ -32,6 +32,7 @@ const AvatarImage = React.forwardRef<
     width={width}
     className={cn("aspect-square h-full w-full", className)}
     style={{ borderRadius: '50%' }}
+    hoverEffect="lift"
     {...props}
   />
 ))
