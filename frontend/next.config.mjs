@@ -10,7 +10,7 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "mighty-citadel-92312-bd2c74c8f386.herokuapp.com",
+        hostname: "virtual-library-production.up.railway.app",
       },
     ],
   },
