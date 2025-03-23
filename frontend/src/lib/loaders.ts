@@ -47,6 +47,9 @@ export async function getBookData(slug: string) {
         },
         fields: ["content", "createdAt"],
       },
+      links: {
+        fields: ["text", "url"],
+      },
     },
   });
 

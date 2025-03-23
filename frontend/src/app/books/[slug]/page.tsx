@@ -20,10 +20,6 @@ export default async function BookPage(props: {
 
     const user: any = await getUserMeLoader()
 
-    const externalLinks = [
-        { name: "Amazon", url: bookData.amazon_url },
-        { name: "The StoryGraph", url: bookData.storygraph_url },
-    ].filter((link) => link.url)
 
     return (
         <div className="mx-auto py-8 px-4 md:px-8 max-w-6xl">
@@ -61,9 +57,9 @@ export default async function BookPage(props: {
                             <p className="text-lg">{bookData.description}</p>
                         </div>
 
-                        {externalLinks.length > 0 && (
+                        {bookData.links.length > 0 && (
                             <div className="mt-auto pt-4 border-t border-border">
-                                <ExternalLinks links={externalLinks} />
+                                <ExternalLinks links={bookData.links} />
                             </div>
                         )}
                     </div>

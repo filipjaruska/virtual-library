@@ -829,6 +829,7 @@ export interface ApiBookBook extends Schema.CollectionType {
       'manyToMany',
       'plugin::users-permissions.user'
     >;
+    links: Attribute.Component<'components.link', true>;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     publishedAt: Attribute.DateTime;

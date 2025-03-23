@@ -1,5 +1,80 @@
 import type { Schema, Attribute } from '@strapi/strapi';
 
+export interface ComponentsTag extends Schema.Component {
+  collectionName: 'components_components_tags';
+  info: {
+    displayName: 'Tag';
+    description: '';
+  };
+  attributes: {
+    name: Attribute.Enumeration<
+      [
+        'new',
+        'popular',
+        'upcoming',
+        'gold',
+        'sci-fi',
+        'fiction',
+        'romance novel',
+        'thriller',
+        "children's literature",
+        'biography'
+      ]
+    >;
+  };
+}
+
+export interface ComponentsQnas extends Schema.Component {
+  collectionName: 'components_components_qnas';
+  info: {
+    displayName: 'Qnas';
+  };
+  attributes: {
+    heading: Attribute.String;
+    answer: Attribute.Text;
+  };
+}
+
+export interface ComponentsLink extends Schema.Component {
+  collectionName: 'components_components_links';
+  info: {
+    displayName: 'Link';
+    description: '';
+  };
+  attributes: {
+    url: Attribute.String;
+    text: Attribute.String;
+  };
+}
+
+export interface ComponentsFeature extends Schema.Component {
+  collectionName: 'components_components_features';
+  info: {
+    displayName: 'Feature';
+    icon: 'brush';
+    description: '';
+  };
+  attributes: {
+    heading: Attribute.String;
+    subHeading: Attribute.Text;
+    icon: Attribute.Enumeration<['ICON_1', 'ICON_2', 'ICON_3']>;
+  };
+}
+
+export interface ComponentsBook extends Schema.Component {
+  collectionName: 'components_components_books';
+  info: {
+    displayName: 'Book';
+    description: '';
+  };
+  attributes: {
+    title: Attribute.String;
+    description: Attribute.Text;
+    author: Attribute.String;
+    image: Attribute.Media<'images'>;
+  };
+}
+
 export interface LayoutQnaSection extends Schema.Component {
   collectionName: 'components_layout_qna_sections';
   info: {
@@ -61,94 +136,19 @@ export interface LayoutFeaturesSection extends Schema.Component {
   };
 }
 
-export interface ComponentsTag extends Schema.Component {
-  collectionName: 'components_components_tags';
-  info: {
-    displayName: 'Tag';
-    description: '';
-  };
-  attributes: {
-    name: Attribute.Enumeration<
-      [
-        'new',
-        'popular',
-        'upcoming',
-        'gold',
-        'sci-fi',
-        'fiction',
-        'romance novel',
-        'thriller',
-        "children's literature",
-        'biography'
-      ]
-    >;
-  };
-}
-
-export interface ComponentsQnas extends Schema.Component {
-  collectionName: 'components_components_qnas';
-  info: {
-    displayName: 'Qnas';
-  };
-  attributes: {
-    heading: Attribute.String;
-    answer: Attribute.Text;
-  };
-}
-
-export interface ComponentsLink extends Schema.Component {
-  collectionName: 'components_components_links';
-  info: {
-    displayName: 'Link';
-  };
-  attributes: {
-    url: Attribute.String;
-    text: Attribute.String;
-    isExternal: Attribute.Boolean;
-  };
-}
-
-export interface ComponentsFeature extends Schema.Component {
-  collectionName: 'components_components_features';
-  info: {
-    displayName: 'Feature';
-    icon: 'brush';
-    description: '';
-  };
-  attributes: {
-    heading: Attribute.String;
-    subHeading: Attribute.Text;
-    icon: Attribute.Enumeration<['ICON_1', 'ICON_2', 'ICON_3']>;
-  };
-}
-
-export interface ComponentsBook extends Schema.Component {
-  collectionName: 'components_components_books';
-  info: {
-    displayName: 'Book';
-    description: '';
-  };
-  attributes: {
-    title: Attribute.String;
-    description: Attribute.Text;
-    author: Attribute.String;
-    image: Attribute.Media<'images'>;
-  };
-}
-
 declare module '@strapi/types' {
   export module Shared {
     export interface Components {
-      'layout.qna-section': LayoutQnaSection;
-      'layout.hero-section': LayoutHeroSection;
-      'layout.header': LayoutHeader;
-      'layout.footer': LayoutFooter;
-      'layout.features-section': LayoutFeaturesSection;
       'components.tag': ComponentsTag;
       'components.qnas': ComponentsQnas;
       'components.link': ComponentsLink;
       'components.feature': ComponentsFeature;
       'components.book': ComponentsBook;
+      'layout.qna-section': LayoutQnaSection;
+      'layout.hero-section': LayoutHeroSection;
+      'layout.header': LayoutHeader;
+      'layout.footer': LayoutFooter;
+      'layout.features-section': LayoutFeaturesSection;
     }
   }
 }

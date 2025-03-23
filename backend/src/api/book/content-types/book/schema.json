@@ -49,6 +49,11 @@
       "relation": "manyToMany",
       "target": "plugin::users-permissions.user",
       "mappedBy": "favoriteBooks"
+    },
+    "links": {
+      "type": "component",
+      "repeatable": true,
+      "component": "components.link"
     }
   }
 }
