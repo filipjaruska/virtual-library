@@ -1,10 +1,6 @@
 module.exports = ({ env }) => ({
-  host: env("HOST", "0.0.0.0"),
-  port: env.int("PORT", 1337),
-  url: env(
-    "RAILWAY_STATIC_URL",
-    "https://virtual-library-production.up.railway.app"
-  ),
+  proxy: true,
+  url: env("RAILWAY_PUBLIC_DOMAIN"),
   app: {
     keys: env.array("APP_KEYS"),
   },
