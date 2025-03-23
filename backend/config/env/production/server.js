@@ -1,6 +1,6 @@
 module.exports = ({ env }) => ({
   proxy: true,
-  url: env("RAILWAY_PUBLIC_DOMAIN"),
+  url: env("STRAPI_DEPLOYMENT_URL"),
   app: {
     keys: env.array("APP_KEYS"),
   },
