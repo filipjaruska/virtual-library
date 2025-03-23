@@ -1,14 +1,14 @@
 "use client";
 import React from 'react'
-import {useForm} from 'react-hook-form';
-import {zodResolver} from '@hookform/resolvers/zod';
-import {z} from 'zod';
-import {Form, FormControl, FormField, FormItem, FormMessage} from "@/components/ui/form";
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 
-import {Button} from "@/components/ui/button";
-import {CreateComment} from "@/lib/actions/create-comment";
-import {User} from "@/lib/types/books";
-import {Textarea} from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { CreateComment } from "@/lib/actions/create-comment";
+import { User } from "@/lib/types/books";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
     bookId: number,
@@ -20,7 +20,7 @@ const fromSchema = z.object({
     comment: z.string().min(4).max(144),
 });
 
-const CreateCommentForm = ({bookId, user, canSubmit}: Props) => {
+const CreateCommentForm = ({ bookId, user, canSubmit }: Props) => {
     const form = useForm<z.infer<typeof fromSchema>>({
         resolver: zodResolver(fromSchema),
         defaultValues: {
@@ -50,7 +50,7 @@ const CreateCommentForm = ({bookId, user, canSubmit}: Props) => {
                         <FormField
                             control={form.control}
                             name="comment"
-                            render={({field}) => (
+                            render={({ field }) => (
                                 <FormItem>
                                     <FormControl>
                                         <Textarea
@@ -59,7 +59,7 @@ const CreateCommentForm = ({bookId, user, canSubmit}: Props) => {
                                             className="w-full p-4 mb-4 border rounded-lg focus:outline-none"
                                         />
                                     </FormControl>
-                                    <FormMessage/>
+                                    <FormMessage />
                                 </FormItem>
                             )}
                         />

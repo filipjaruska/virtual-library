@@ -1,8 +1,8 @@
 import React from 'react';
-import {Badge} from "@/components/ui/badge";
-import {Tag} from "@/lib/types/books";
+import { Badge } from "@/components/ui/badge";
+import { Tag } from "@/lib/types/books";
 
-export default function Tags({tags}: {tags: Tag[]}) {
+export default function Tags({ tags }: { tags: Tag[] }) {
     return (
         <div className="text-muted-foreground">
             {tags.map((tag) => (

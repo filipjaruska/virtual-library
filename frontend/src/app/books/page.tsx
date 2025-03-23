@@ -1,12 +1,12 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import BookGrid from "@/components/section/bookgrid-section";
 import { BooksNavigationMenu } from "@/components/custom-ui/books-navigation-menu";
-import { FaSearch } from "react-icons/fa";
+import Pagination from "@/components/custom-ui/pagination";
+import BookGrid from "@/components/section/bookgrid-section";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getBooksPageData } from "@/lib/loaders";
 import { useRouter, useSearchParams } from "next/navigation";
-import Pagination from "@/components/custom-ui/pagination";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useEffect, useState } from "react";
+import { FaSearch } from "react-icons/fa";
 import { MdKeyboardCommandKey } from "react-icons/md";
 
 export default function Page() {

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { StrapiImage } from "@/components/ui/strapi-image";
-import { Image } from "@/lib/types/image";
+import { Image as ImageType } from "@/lib/types/image";
+import Image from "next/image";
+import { getStrapiMedia } from "@/lib/utils";
 
 
 
@@ -16,7 +17,7 @@ interface HeroSectionProps {
         __component: string;
         heading: string;
         subHeading: string;
-        image: Image;
+        image: ImageType;
         link: LinkProps;
     }
 }
@@ -25,11 +26,11 @@ export function HeroSection({ data }: Readonly<HeroSectionProps>) {
     const { heading, subHeading, image, link } = data;
     return (
         <header className="relative h-[600px] overflow-hidden">
-            <StrapiImage
+            <Image
                 alt="Background"
                 className="absolute inset-0 object-cover w-full h-full"
                 height={1080}
-                src={image.formats?.large?.url || image.url}
+                src={getStrapiMedia(image.url) || "https://placehold.co/1920x1080"}
                 width={1920}
                 style={{ userSelect: "none" }}
             />
