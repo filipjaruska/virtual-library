@@ -29,7 +29,14 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    const globalData = await getGlobalPageData();
+    let globalData;
+    try {
+        globalData = await getGlobalPageData();
+    } catch (error) {
+        console.error("Failed to fetch global data:", error);
+        globalData = { header: undefined, footer: undefined };
+    }
+
     return (
         <html lang="en">
             <body className={roboto.className}>
@@ -41,9 +48,9 @@ export default async function RootLayout({
                     themes={["light", "dark", "odark"]}
                     disableTransitionOnChange
                 >
-                    <Header data={globalData.header} />
+                    <Header data={globalData?.header} />
                     {children}
-                    <Footer data={globalData.footer} />
+                    <Footer data={globalData?.footer} />
                     <CommandBar />
                 </ThemeProvider>
             </body>
