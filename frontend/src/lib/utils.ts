@@ -46,12 +46,24 @@ export function flattenAttributes(data: any): any {
 }
 
 export function getStrapiURL() {
-  return process.env.NEXT_PUBLIC_STRAPI_URL ?? "http://localhost:1337";
+  const url = process.env.NEXT_PUBLIC_STRAPI_URL ?? "http://localhost:1337";
+  // Remove trailing slash if present to avoid double slashes
+  return url.endsWith("/") ? url.slice(0, -1) : url;
 }
 
 export function getStrapiMedia(url: string | null, format: string = "large") {
   if (url == null) return null;
   if (url.startsWith("data:")) return url;
   if (url.startsWith("http") || url.startsWith("//")) return url;
-  return `${getStrapiURL()}${url}`;
+
+  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
+  return `${getStrapiURL()}${normalizedPath}`;
+}
+
+export function logImageUrl(url: string | null): void {
+  if (process.env.NODE_ENV === "development") {
+    console.log("Original URL:", url);
+    console.log("Processed URL:", getStrapiMedia(url));
+    console.log("STRAPI URL:", getStrapiURL());
+  }
 }
