@@ -59,11 +59,3 @@ export function getStrapiMedia(url: string | null, format: string = "large") {
   const normalizedPath = url.startsWith("/") ? url : `/${url}`;
   return `${getStrapiURL()}${normalizedPath}`;
 }
-
-export function logImageUrl(url: string | null): void {
-  if (process.env.NODE_ENV === "development") {
-    console.log("Original URL:", url);
-    console.log("Processed URL:", getStrapiMedia(url));
-    console.log("STRAPI URL:", getStrapiURL());
-  }
-}
