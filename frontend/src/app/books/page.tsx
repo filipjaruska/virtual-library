@@ -1,143 +1,51 @@
-"use client";
-import { BooksNavigationMenu } from "@/components/custom-ui/books-navigation-menu";
-import Pagination from "@/components/custom-ui/pagination";
-import BookGrid from "@/components/section/bookgrid-section";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { getBooksPageData } from "@/lib/loaders";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa";
-import { MdKeyboardCommandKey } from "react-icons/md";
+import BooksClientUI from "@/components/books/books-client-ui";
+import { Suspense } from "react";
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 
-export default function Page() {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+interface PageProps {
+    searchParams: Promise<{
+        search?: string | string[];
+        tag?: string | string[];
+        page?: string | string[];
+        sort?: string | string[];
+    }>;
+}
 
-    const [books, setBooks] = useState([]);
-    const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
-    const [tag, setTag] = useState(searchParams.get("tag") || "");
-    const [page, setPage] = useState(parseInt(searchParams.get("page") || "1", 24));
-    const [totalPages, setTotalPages] = useState(1);
-    const [sort, setSort] = useState(searchParams.get("sort") || "title:asc");
+export default async function Page({
+    searchParams,
+}: PageProps) {
+    const params = await searchParams;
 
-    useEffect(() => {
-        setSearchQuery(searchParams.get("search") || "");
-        setTag(searchParams.get("tag") || "");
-        setPage(parseInt(searchParams.get("page") || "1", 24));
-        setSort(searchParams.get("sort") || "title:asc");
-    }, [searchParams]);
+    const searchQuery = typeof params.search === 'string' ? params.search : '';
+    const tag = typeof params.tag === 'string' ? params.tag : '';
+    const page = typeof params.page === 'string' ? parseInt(params.page) : 1;
+    const pageSize = 24;
+    const sort = typeof params.sort === 'string' ? params.sort : 'title:asc';
 
-    useEffect(() => {
-        async function fetchBooks() {
-            try {
-                const data = await getBooksPageData(searchQuery, tag, page, 24, sort);
-                setBooks(data?.data || []);
-                setTotalPages(data?.meta?.pagination?.pageCount || 1);
-            } catch (error) {
-                console.error("Failed to fetch books:", error);
-            }
-        }
-        fetchBooks();
-    }, [searchQuery, tag, page, sort]);
+    const queryClient = new QueryClient();
 
-    const handleSearchChange = (e: any) => {
-        const newQuery = e.target.value;
-        setSearchQuery(newQuery);
+    await queryClient.prefetchQuery({
+        queryKey: ['books', { searchQuery, tag, page, pageSize, sort }],
+        queryFn: async () => await getBooksPageData(searchQuery, tag, page, pageSize, sort),
+    });
 
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('search', newQuery);
-        newUrl.searchParams.set('tag', tag);
-        newUrl.searchParams.set('page', '1');
-        newUrl.searchParams.set('sort', sort);
-
-        router.push(newUrl.toString(), { scroll: false });
-    };
-
-    const handlePageChange = (newPage: number) => {
-        setPage(newPage);
-
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('search', searchQuery);
-        newUrl.searchParams.set('tag', tag);
-        newUrl.searchParams.set('page', newPage.toString());
-
-        router.push(newUrl.toString(), { scroll: false });
-    };
-
-    const handleSortChange = (newSort: string) => {
-        setSort(newSort);
-
-        const newUrl = new URL(window.location.href);
-        newUrl.searchParams.set('search', searchQuery);
-        newUrl.searchParams.set('tag', tag);
-        newUrl.searchParams.set('page', '1');
-        newUrl.searchParams.set('sort', newSort);
-
-        router.push(newUrl.toString(), { scroll: false });
-    };
-
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            const searchInput = document.getElementById('search-input') as HTMLInputElement;
-            if (event.ctrlKey && event.key === 'f') {
-                event.preventDefault();
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            } else if (event.key === 'Escape' && document.activeElement === searchInput) {
-                searchInput.blur();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, []);
-    console.log(books);
+    const data = await getBooksPageData(searchQuery, tag, page, pageSize, sort);
+    const books = data?.data || [];
+    const totalPages = data?.meta?.pagination?.pageCount || 1;
 
     return (
-        <>
-            <header className="flex items-center justify-between bg-secondary px-2 py-2 border-b border-primary">
-                <BooksNavigationMenu />
-                <div className="relative flex items-center">
-                    <input
-                        id="search-input"
-                        type="text"
-                        placeholder="Search..."
-                        value={searchQuery}
-                        className="px-4 py-2 rounded-lg border border-primary bg-card min-w-fit lg:min-w-96 ml-2"
-                        onChange={handleSearchChange}
-                    />
-                    <span className="absolute right-10 text-gray-500 flex items-center">
-                        <MdKeyboardCommandKey />+F
-                    </span>
-                    <FaSearch
-                        className="absolute right-3 top-2/4 transform -translate-y-2/4 text-card-foreground"
-                    />
-                </div>
-                <div className="ml-4">
-                    <Select value={sort} onValueChange={handleSortChange}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="title:asc">Sort by Name (A-Z)</SelectItem>
-                                <SelectItem value="title:desc">Sort by Name (Z-A)</SelectItem>
-                                <SelectItem value="createdAt:desc">Sort by Newest</SelectItem>
-                                <SelectItem value="createdAt:asc">Sort by Oldest</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </header>
-            <BookGrid books={books} />
-            <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-            />
-        </>
+        <Suspense fallback={<div className="p-4 text-center">Loading books...</div>}>
+            <HydrationBoundary state={dehydrate(queryClient)}>
+                <BooksClientUI
+                    initialBooks={books}
+                    initialTotalPages={totalPages}
+                    initialPage={page}
+                    initialSearchQuery={searchQuery}
+                    initialTag={tag}
+                    initialSort={sort}
+                />
+            </HydrationBoundary>
+        </Suspense>
     );
 }

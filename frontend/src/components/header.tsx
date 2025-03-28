@@ -51,6 +51,20 @@ export async function Header({ data }: Readonly<HeaderProps>) {
 
     const { logoText, ctaButton } = data;
     const user = await getUserMeLoader();
+
+    const getAvatarUrl = (image: any) => {
+        if (!image) return "https://placehold.co/40x40";
+
+        if (typeof image === 'string') return image;
+
+        if (image.formats?.thumbnail?.url) return image.formats.thumbnail.url;
+        if (image.url) return image.url;
+
+        if (image.image?.url) return image.image.url;
+
+        return "https://placehold.co/40x40";
+    };
+
     return (
         <div className="flex items-center justify-between px-4 py-3 bg-secondary text-secondary-foreground shadow-md">
             <div className="flex items-center gap-4">
@@ -71,7 +85,7 @@ export async function Header({ data }: Readonly<HeaderProps>) {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Avatar className="cursor-pointer hover:scale-105" tabIndex={-1}>
-                                {user.data.image && <AvatarImage src={user.data.image.formats?.thumbnail?.url || user.data.image.url || "https://placehold.co/40x40"} alt="User Avatar" height={40} width={40} />}
+                                <AvatarImage src={getAvatarUrl(user.data?.image)} alt="User Avatar" height={40} width={40} />
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent tabIndex={-1}>

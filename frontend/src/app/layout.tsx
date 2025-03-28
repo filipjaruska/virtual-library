@@ -4,6 +4,7 @@ import { Header } from "@/components/header";
 import ThemeProvider from "@/components/ui/theme-provider";
 import { getGlobalPageData, getGlobalPageMetadata } from "@/lib/loaders";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import Providers from './providers';
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
@@ -29,30 +30,49 @@ export default async function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
-    let globalData;
-    try {
-        globalData = await getGlobalPageData();
-    } catch (error) {
-        console.error("Failed to fetch global data:", error);
-        globalData = { header: undefined, footer: undefined };
+
+    let globalData = await getGlobalPageData();
+    if (!globalData) {
+        return (
+            <html lang="en" suppressHydrationWarning>
+                <body className={`${roboto.className} min-h-screen bg-background antialiased`}>
+                    <Providers>
+                        <ThemeProvider
+                            attribute="class"
+                            defaultTheme="system"
+                            enableSystem
+                            disableTransitionOnChange
+                        >
+                            <div className="flex flex-col items-center justify-center min-h-screen py-12">
+                                <div className="text-center px-4">
+                                    <h1 className="text-3xl font-bold mb-4">Unable to Load Content</h1>
+                                    <p className="mb-8 text-muted-foreground">The server is currently unavailable. Please try again later.</p>
+                                </div>
+                            </div>
+                        </ThemeProvider>
+                    </Providers>
+                </body>
+            </html>
+        );
     }
 
     return (
-        <html lang="en">
-            <body className={roboto.className}>
+        <html lang="en" suppressHydrationWarning>
+            <body className={`${roboto.className} min-h-screen bg-background antialiased`} >
+                <Providers>
+                    <ThemeProvider
+                        attribute="class"
+                        defaultTheme="system"
+                        enableSystem
+                        disableTransitionOnChange
+                    >
+                        <Header data={globalData?.header} />
+                        {children}
+                        <Footer data={globalData?.footer} />
+                        <CommandBar />
+                    </ThemeProvider>
+                </Providers>
                 <SpeedInsights />
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="light"
-                    enableSystem
-                    themes={["light", "dark", "odark"]}
-                    disableTransitionOnChange
-                >
-                    <Header data={globalData?.header} />
-                    {children}
-                    <Footer data={globalData?.footer} />
-                    <CommandBar />
-                </ThemeProvider>
             </body>
         </html>
     );
