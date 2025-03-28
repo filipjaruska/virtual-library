@@ -2,26 +2,13 @@
 
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
-
-interface AreaChartData {
-    month: string;
-    books: number;
-    comments: number;
-}
+import { ChartDataItem } from "@/lib/types/api-types";
 
 interface AreaChartProps {
-    data?: AreaChartData[];
+    data?: ChartDataItem[];
 }
 
 export function AreaChartComponent({ data = [] }: AreaChartProps) {
-    const chartData = data.length ? data : [
-        { month: "January", books: 186, comments: 80 },
-        { month: "February", books: 305, comments: 200 },
-        { month: "March", books: 237, comments: 120 },
-        { month: "April", books: 73, comments: 190 },
-        { month: "May", books: 209, comments: 130 },
-        { month: "June", books: 214, comments: 140 },
-    ];
 
     const chartConfig = {
         books: {
@@ -34,12 +21,19 @@ export function AreaChartComponent({ data = [] }: AreaChartProps) {
         },
     };
 
+    if (data.length < 1) {
+        return (
+            <div className="flex items-center justify-center w-full h-full">
+                <p className="text-lg text-muted">No data available</p>
+            </div>
+        );
+    }
     return (
         <div className="w-full h-full">
             <ChartContainer config={chartConfig} className="w-full h-full">
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
-                        data={chartData}
+                        data={data}
                         margin={{ left: 0, right: 10, top: 10, bottom: 10 }}
                     >
                         <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.4} />

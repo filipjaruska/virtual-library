@@ -3,15 +3,10 @@
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
 import * as React from "react";
 import { Label, Legend, Pie, PieChart, ResponsiveContainer } from "recharts";
-
-interface ChartDataItem {
-    browser: string;
-    visitors: number;
-    fill?: string;
-}
+import { TagDataItem } from "@/lib/types/api-types";
 
 interface PieChartComponentProps {
-    data?: ChartDataItem[];
+    data?: TagDataItem[];
 }
 
 export default function PieChartComponent({ data = [] }: PieChartComponentProps) {
@@ -27,20 +22,19 @@ export default function PieChartComponent({ data = [] }: PieChartComponentProps)
     ];
 
     let chartData = [];
-    if (data.length) {
-        chartData = data.map((item, index) => ({
-            ...item,
-            fill: colors[index % colors.length]
-        }));
-    } else {
-        chartData = [
-            { browser: "sci-fi", visitors: 28, fill: colors[0] },
-            { browser: "fiction", visitors: 22, fill: colors[1] },
-            { browser: "romance", visitors: 18, fill: colors[2] },
-            { browser: "thriller", visitors: 15, fill: colors[3] },
-            { browser: "biography", visitors: 12, fill: colors[4] }
-        ];
+
+    if (data.length < 1) {
+        return (
+            <div className="flex items-center justify-center w-full h-full">
+                <p className="text-lg text-muted">No data available</p>
+            </div>
+        );
     }
+
+    chartData = data.map((item, index) => ({
+        ...item,
+        fill: colors[index % colors.length]
+    }));
 
     const chartConfig = {
         visitors: {
@@ -61,13 +55,6 @@ export default function PieChartComponent({ data = [] }: PieChartComponentProps)
         return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
     }, [chartData])
 
-    // Calculate percentages for each segment
-    const dataWithPercentage = chartData.map((item) => ({
-        ...item,
-        percentage: ((item.visitors / totalVisitors) * 100).toFixed(1)
-    }));
-
-    // Even more compact legend that fits within container bounds
     const renderCompactLegend = (props: any) => {
         const { payload } = props;
 
