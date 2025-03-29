@@ -54,10 +54,19 @@ const components = [
     },
 ];
 
-export function BooksNavigationMenu() {
+interface BooksNavigationMenuProps {
+    onTagSelect?: (tag: string) => void;
+}
+
+export function BooksNavigationMenu({ onTagSelect }: BooksNavigationMenuProps) {
     const router = useRouter();
 
     const handleTagChange = (tag: string) => {
+        if (onTagSelect) {
+            onTagSelect(tag);
+            return;
+        }
+
         const currentUrl = new URL(window.location.href);
         currentUrl.searchParams.set('tag', tag);
         router.push(currentUrl.toString(), { scroll: false });

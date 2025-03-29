@@ -13,6 +13,11 @@ export function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
   useEffect(() => {
+    if (typeof value === "string" && value === "") {
+      setDebouncedValue(value);
+      return;
+    }
+
     // Set a timeout to update the debounced value after delay
     const timer = setTimeout(() => {
       setDebouncedValue(value);
