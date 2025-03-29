@@ -2,6 +2,7 @@ import { getBooksPageData } from "@/lib/loaders";
 import BooksClientUI from "@/components/books/books-client-ui";
 import { Suspense } from "react";
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import LoadingBooksPage from "./loading";
 
 interface PageProps {
     searchParams: Promise<{
@@ -35,7 +36,7 @@ export default async function Page({
     const totalPages = data?.meta?.pagination?.pageCount || 1;
 
     return (
-        <Suspense fallback={<div className="p-4 text-center">Loading books...</div>}>
+        <Suspense fallback={<LoadingBooksPage />}>
             <HydrationBoundary state={dehydrate(queryClient)}>
                 <BooksClientUI
                     initialBooks={books}

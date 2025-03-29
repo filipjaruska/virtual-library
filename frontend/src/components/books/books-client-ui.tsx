@@ -7,9 +7,10 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBooks } from "@/hooks/use-books";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import { FaSearch } from "react-icons/fa";
 import { MdKeyboardCommandKey } from "react-icons/md";
+import { useDebounce } from "@/hooks/use-debounce";
 
 interface BooksClientUIProps {
     initialBooks: any[];
@@ -30,9 +31,11 @@ export default function BooksClientUI({
 }: BooksClientUIProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
+    const initialRender = useRef(true);
 
     // Local state for form inputs
     const [searchInput, setSearchInput] = useState(initialSearchQuery);
+    const debouncedSearchQuery = useDebounce(searchInput, 500);
 
     // State for the current query parameters
     const [queryParams, setQueryParams] = useState({
@@ -41,6 +44,9 @@ export default function BooksClientUI({
         page: initialPage,
         sort: initialSort,
     });
+
+    // For client-side sorting
+    const [localSortEnabled, setLocalSortEnabled] = useState(false);
 
     // Listen for URL parameter changes
     useEffect(() => {
@@ -62,12 +68,30 @@ export default function BooksClientUI({
                 sort: urlSort,
             });
 
+            setLocalSortEnabled(false);
+
             // Update the input field too
             if (urlSearchQuery !== searchInput) {
                 setSearchInput(urlSearchQuery);
             }
         }
     }, [searchParams]);
+
+    // Effect to handle debounced search query
+    useEffect(() => {
+        if (initialRender.current) {
+            initialRender.current = false;
+            return;
+        }
+
+        if (debouncedSearchQuery !== queryParams.searchQuery) {
+            // Set a flag to indicate searching
+            updateQueryParams({
+                searchQuery: debouncedSearchQuery,
+                page: 1
+            });
+        }
+    }, [debouncedSearchQuery]);
 
     const { data, isLoading, isError } = useBooks({
         searchQuery: queryParams.searchQuery,
@@ -80,8 +104,24 @@ export default function BooksClientUI({
         }
     });
 
-    const books = data?.data || [];
+    const rawBooks = data?.data || [];
     const totalPages = data?.meta?.pagination?.pageCount || 1;
+
+    // Client-side sorting
+    const books = useMemo(() => {
+        if (!localSortEnabled || !rawBooks.length) return rawBooks;
+
+        const [field, direction] = queryParams.sort.split(':');
+
+        return [...rawBooks].sort((a, b) => {
+            if (field === 'title') {
+                return direction === 'asc'
+                    ? a.title.localeCompare(b.title)
+                    : b.title.localeCompare(a.title);
+            }
+            return 0;
+        });
+    }, [rawBooks, queryParams.sort, localSortEnabled]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchInput(e.target.value);
@@ -99,16 +139,25 @@ export default function BooksClientUI({
     };
 
     const handleSortChange = (newSort: string) => {
-        updateQueryParams({
+        setLocalSortEnabled(true);
+        setQueryParams(prev => ({
+            ...prev,
             sort: newSort,
-            page: 1
-        });
+        }));
+
+        setTimeout(() => {
+            updateQueryParams({
+                sort: newSort,
+                page: 1
+            });
+        }, 100);
     };
 
     // Helper to update URL/Query parameters
     const updateQueryParams = (updates: Partial<typeof queryParams>) => {
         const newParams = { ...queryParams, ...updates };
         setQueryParams(newParams);
+        setLocalSortEnabled(false);
 
         // Update URL to match the new parameters
         const url = new URL(window.location.href);
