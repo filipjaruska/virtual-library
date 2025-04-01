@@ -33,10 +33,15 @@ export default function BooksClientUI({
     const searchParams = useSearchParams();
     const initialRender = useRef(true);
     const urlUpdateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+    const [isSearching, setIsSearching] = useState(false);
 
-    // Local state for form inputs
+    // Local state
     const [searchInput, setSearchInput] = useState(initialSearchQuery);
-    const debouncedSearchQuery = useDebounce(searchInput, 200);
+    // Fast debounce for client-side operations, slower one for server
+    const debouncedSearchQuery = useDebounce(searchInput, 150);
+
+    // Always cached full book list 
+    const [allBooks, setAllBooks] = useState<any[]>(initialBooks);
 
     // State for the current query parameters
     const [queryParams, setQueryParams] = useState({
@@ -46,8 +51,14 @@ export default function BooksClientUI({
         sort: initialSort,
     });
 
-    const [clientFiltering, setClientFiltering] = useState(false);
-    const [clientFilteredBooks, setClientFilteredBooks] = useState<any[]>([]);
+    // Track if in client-side filtering mode
+    const [clientMode, setClientMode] = useState(false);
+    const [lastServerQuery, setLastServerQuery] = useState({
+        searchQuery: initialSearchQuery,
+        tag: initialTag,
+        page: initialPage,
+        sort: initialSort
+    });
 
     useEffect(() => {
         const urlSearchQuery = searchParams.get("search") || "";
@@ -55,7 +66,6 @@ export default function BooksClientUI({
         const urlPage = parseInt(searchParams.get("page") || "1");
         const urlSort = searchParams.get("sort") || "title:asc";
 
-        // Update state if URL parameters change
         if (
             urlTag !== queryParams.tag ||
             urlSearchQuery !== queryParams.searchQuery ||
@@ -69,9 +79,14 @@ export default function BooksClientUI({
                 sort: urlSort,
             });
 
-            setClientFiltering(false);
+            setClientMode(false);
+            setLastServerQuery({
+                searchQuery: urlSearchQuery,
+                tag: urlTag,
+                page: urlPage,
+                sort: urlSort
+            });
 
-            // Update the input field too
             if (urlSearchQuery !== searchInput) {
                 setSearchInput(urlSearchQuery);
             }
@@ -86,107 +101,145 @@ export default function BooksClientUI({
         }
 
         if (debouncedSearchQuery !== queryParams.searchQuery) {
-            // Do client-side filtering for immediate feedback
-            const filtered = performClientSearch(debouncedSearchQuery);
-            setClientFilteredBooks(filtered);
-            setClientFiltering(true);
+            // Handle client-side searching for immediate feedback
+            setClientMode(true);
 
-            // Then update URL with minimal delay
-            updateQueryParamsDelayed(
-                {
-                    searchQuery: debouncedSearchQuery,
-                    page: 1,
-                },
-                150
-            );
+            // Update URL with delay to avoid excessive server requests
+            updateQueryParamsDelayed({
+                searchQuery: debouncedSearchQuery,
+                page: 1,
+            }, 500);
         }
     }, [debouncedSearchQuery]);
 
+    // Data fetching
     const { data, isLoading, isError } = useBooks({
-        searchQuery: queryParams.searchQuery,
-        tag: queryParams.tag,
-        page: queryParams.page,
-        sort: queryParams.sort,
+        searchQuery: lastServerQuery.searchQuery,  // Only fetch from server when we need new data
+        tag: lastServerQuery.tag,
+        page: lastServerQuery.page,
+        sort: lastServerQuery.sort,
         initialData: {
             data: initialBooks,
             meta: { pagination: { pageCount: initialTotalPages } },
         },
     });
 
-    const dataBooks = data?.data || [];
+    // Update cache of all books when server data changes
+    useEffect(() => {
+        if (data?.data && !clientMode) {
+            setAllBooks(data.data);
+        }
+    }, [data, clientMode]);
+
+    // Automatically sync with server after client-side filtering
+    useEffect(() => {
+        if (clientMode) {
+            // Auto-sync with server after a short delay
+            const syncTimer = setTimeout(() => {
+                setLastServerQuery({ ...queryParams });
+                setClientMode(false);
+            }, 800); // Delay server sync to prevent too many requests
+
+            return () => clearTimeout(syncTimer);
+        }
+    }, [clientMode, queryParams]);
+
     const totalPages = data?.meta?.pagination?.pageCount || 1;
 
-    const performClientSearch = (query: string) => {
-        if (!query) return dataBooks;
+    // Compute filtered books based on current UI state
+    const displayBooks = useMemo(() => {
+        setIsSearching(false);
 
-        return dataBooks.filter((book: any) =>
-            book.title.toLowerCase().includes(query.toLowerCase())
-        );
-    };
-
-    const handleTagSelect = (tag: string) => {
-        if (!tag) {
-            // Immediately clear filters without waiting
-            setClientFiltering(false);
-            updateQueryParams({ tag: "", page: 1 });
-            return;
+        if (!clientMode) {
+            return data?.data || [];
         }
 
-        const filtered = dataBooks.filter(
-            (book: any) =>
-                book.tags && book.tags.some((t: any) => t.name === tag)
-        );
-        setClientFilteredBooks(filtered);
-        setClientFiltering(true);
+        let results = [...allBooks];
 
-        updateQueryParamsDelayed({ tag, page: 1 }, 100);
-    };
+        // Apply client-side filtering based on current queryParams
+        if (queryParams.searchQuery) {
+            const search = queryParams.searchQuery.toLowerCase();
+            results = results.filter(book =>
+                book.title.toLowerCase().includes(search) ||
+                book.author.toLowerCase().includes(search)
+            );
+        }
 
-    const handleSortChange = (newSort: string) => {
-        // Apply sorting logic immediately
-        const [field, direction] = newSort.split(":");
-        const sorted = [...(clientFiltering ? clientFilteredBooks : dataBooks)];
+        if (queryParams.tag) {
+            results = results.filter(book =>
+                book.tags && book.tags.some((t: any) => t.name === queryParams.tag)
+            );
+        }
 
-        if (field === "title") {
-            sorted.sort((a, b) => {
-                return direction === "asc"
+        // Apply client-side sorting
+        const [field, direction] = queryParams.sort.split(':');
+
+        if (field === 'title') {
+            results.sort((a, b) => {
+                return direction === 'asc'
                     ? a.title.localeCompare(b.title)
                     : b.title.localeCompare(a.title);
             });
         }
 
-        setClientFilteredBooks(sorted);
-        setClientFiltering(true);
-
-        updateQueryParamsDelayed({ sort: newSort, page: 1 }, 100);
-    };
+        return results;
+    }, [allBooks, queryParams, data?.data, clientMode]);
 
     const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setSearchInput(e.target.value);
+        setIsSearching(true);
     };
 
     const handleSearch = () => {
-        const filtered = performClientSearch(searchInput);
-        setClientFilteredBooks(filtered);
-        setClientFiltering(true);
+        setClientMode(true);
 
-        // Update URL with minimal delay
-        updateQueryParamsDelayed(
-            {
-                searchQuery: searchInput,
-                page: 1,
-            },
-            100
-        );
+        updateQueryParamsDelayed({
+            searchQuery: searchInput,
+            page: 1,
+        }, 300);
+    };
+
+    const handleTagSelect = (tag: string) => {
+        if (!tag) {
+            setClientMode(false);
+            updateQueryParams({ tag: "", page: 1 });
+            return;
+        }
+
+        setClientMode(true);
+        setQueryParams(prev => ({
+            ...prev,
+            tag,
+            page: 1
+        }));
+
+        updateQueryParamsDelayed({ tag, page: 1 }, 300);
+    };
+
+    const handleSortChange = (newSort: string) => {
+        setClientMode(true);
+
+        setQueryParams(prev => ({
+            ...prev,
+            sort: newSort,
+        }));
+
+        updateQueryParamsDelayed({
+            sort: newSort,
+            page: 1
+        }, 300);
     };
 
     const handlePageChange = (newPage: number) => {
-        // For pagination, we need to get fresh data from server
-        setClientFiltering(false);
+        // For pagination need server data
+        setClientMode(false);
+        setLastServerQuery(prev => ({
+            ...prev,
+            page: newPage
+        }));
         updateQueryParams({ page: newPage });
     };
 
-    // Helper to update URL/Query parameters with a delay
     const updateQueryParamsDelayed = (
         updates: Partial<typeof queryParams>,
         delayMs: number
@@ -197,20 +250,21 @@ export default function BooksClientUI({
 
         urlUpdateTimeoutRef.current = setTimeout(() => {
             updateQueryParams(updates);
+
+            // After updating URL, update server query
+            setLastServerQuery(prev => ({
+                ...prev,
+                ...updates
+            }));
+
+            setClientMode(false);
         }, delayMs);
     };
 
-    // Helper to update URL/Query parameters immediately
     const updateQueryParams = (updates: Partial<typeof queryParams>) => {
         const newParams = { ...queryParams, ...updates };
         setQueryParams(newParams);
 
-        if (Object.keys(updates).some((key) => key !== "page")) {
-            // Reset client filtering when changing filters (except pagination)
-            setClientFiltering(false);
-        }
-
-        // Update URL
         const url = new URL(window.location.href);
         url.searchParams.set("search", newParams.searchQuery);
         url.searchParams.set("tag", newParams.tag);
@@ -222,11 +276,12 @@ export default function BooksClientUI({
 
     const clearTagFilter = () => {
         if (queryParams.tag) {
-            setClientFiltering(false);
+            setClientMode(false);
             updateQueryParams({ tag: "", page: 1 });
         }
     };
 
+    // Cleanup effect
     useEffect(() => {
         return () => {
             if (urlUpdateTimeoutRef.current) {
@@ -235,8 +290,7 @@ export default function BooksClientUI({
         };
     }, []);
 
-    const displayBooks = clientFiltering ? clientFilteredBooks : dataBooks;
-
+    // Keyboard shortcuts
     useEffect(() => {
         const handleKeyDown = (event: KeyboardEvent) => {
             const searchInput = document.getElementById(
@@ -298,18 +352,10 @@ export default function BooksClientUI({
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                                <SelectItem value="title:asc">
-                                    Sort by Name (A-Z)
-                                </SelectItem>
-                                <SelectItem value="title:desc">
-                                    Sort by Name (Z-A)
-                                </SelectItem>
-                                <SelectItem value="createdAt:desc">
-                                    Sort by Newest
-                                </SelectItem>
-                                <SelectItem value="createdAt:asc">
-                                    Sort by Oldest
-                                </SelectItem>
+                                <SelectItem value="title:asc">Sort by Name (A-Z)</SelectItem>
+                                <SelectItem value="title:desc">Sort by Name (Z-A)</SelectItem>
+                                <SelectItem value="createdAt:desc">Sort by Newest</SelectItem>
+                                <SelectItem value="createdAt:asc">Sort by Oldest</SelectItem>
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -317,22 +363,32 @@ export default function BooksClientUI({
             </header>
 
             {queryParams.tag && (
-                <div className="flex items-center px-4 py-2 bg-muted/50">
-                    <span className="font-medium mr-1">Active filter:</span>
-                    <div className="flex items-center bg-primary/10 text-primary rounded px-2 py-1">
-                        <span>Tag: {queryParams.tag}</span>
-                        <button
-                            className="ml-2 text-primary hover:text-primary/70"
-                            onClick={clearTagFilter}
-                        >
-                            ✕
-                        </button>
+                <div className="flex items-center px-4 py-2 bg-muted/10 justify-end">
+                    <div className="flex items-center">
+                        <span className="font-medium mr-1">Tag filter:</span>
+                        <div className="flex items-center bg-primary/10 text-primary rounded px-2 py-1">
+                            <span>{queryParams.tag}</span>
+                            <button
+                                className="ml-2 text-primary hover:text-primary/70"
+                                onClick={clearTagFilter}
+                            >
+                                ✕
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
 
             <div className="relative">
-                {isLoading ? (
+                {/* Loading indicator */}
+                {(isLoading || isSearching) && (
+                    <div className="absolute top-2 right-2 z-10 bg-card border border-border rounded-full px-3 py-1 text-xs shadow-md">
+                        {isSearching ? 'Filtering...' : 'Loading...'}
+                    </div>
+                )}
+
+                {/* Full loading state for initial load */}
+                {isLoading && displayBooks.length === 0 ? (
                     <div className="p-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4">
                             {Array.from({ length: 12 }).map((_, i) => (
@@ -346,7 +402,12 @@ export default function BooksClientUI({
                     </div>
                 ) : isError ? (
                     <div className="p-4 text-center text-red-500">
-                        Failed to load books. Please try again.
+                        <p className="mb-4">Failed to load books. Please try again.</p>
+                    </div>
+                ) : displayBooks.length === 0 ? (
+                    <div className="p-8 text-center">
+                        <h3 className="text-lg font-medium mb-2">No books found</h3>
+                        <p className="text-muted-foreground mb-4">Try changing your search or filters</p>
                     </div>
                 ) : (
                     <BookGrid books={displayBooks} />

@@ -26,9 +26,11 @@ export function useBooks({
       return await getBooksPageData(searchQuery, tag, page, pageSize, sort);
     },
     initialData,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 10 * 60 * 1000, // 10 minutes
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
+    retry: 3,
+    retryDelay: (attempt) => Math.min(attempt > 1 ? 2000 : 1000, 30 * 1000),
   });
 }
