@@ -37,7 +37,6 @@ export default function BooksClientUI({
 
     // Local state
     const [searchInput, setSearchInput] = useState(initialSearchQuery);
-    // Fast debounce for client-side operations, slower one for server
     const debouncedSearchQuery = useDebounce(searchInput, 150);
 
     // Always cached full book list 
@@ -79,13 +78,14 @@ export default function BooksClientUI({
                 sort: urlSort,
             });
 
-            setClientMode(false);
-            setLastServerQuery({
-                searchQuery: urlSearchQuery,
-                tag: urlTag,
-                page: urlPage,
-                sort: urlSort
-            });
+            if (!clientMode) {
+                setLastServerQuery({
+                    searchQuery: urlSearchQuery,
+                    tag: urlTag,
+                    page: urlPage,
+                    sort: urlSort
+                });
+            }
 
             if (urlSearchQuery !== searchInput) {
                 setSearchInput(urlSearchQuery);
@@ -103,6 +103,7 @@ export default function BooksClientUI({
         if (debouncedSearchQuery !== queryParams.searchQuery) {
             // Handle client-side searching for immediate feedback
             setClientMode(true);
+            setIsSearching(true);
 
             // Update URL with delay to avoid excessive server requests
             updateQueryParamsDelayed({
@@ -114,7 +115,7 @@ export default function BooksClientUI({
 
     // Data fetching
     const { data, isLoading, isError } = useBooks({
-        searchQuery: lastServerQuery.searchQuery,  // Only fetch from server when we need new data
+        searchQuery: lastServerQuery.searchQuery,
         tag: lastServerQuery.tag,
         page: lastServerQuery.page,
         sort: lastServerQuery.sort,
@@ -124,25 +125,24 @@ export default function BooksClientUI({
         },
     });
 
-    // Update cache of all books when server data changes
+    // Update all books when fresh data arrives
     useEffect(() => {
-        if (data?.data && !clientMode) {
+        if (data?.data &&
+            // Only update cache if this is actually fresh server data that matches current server query
+            lastServerQuery.searchQuery === data.meta?.requestParams?.searchQuery &&
+            lastServerQuery.tag === data.meta?.requestParams?.tag &&
+            lastServerQuery.sort === data.meta?.requestParams?.sort) {
             setAllBooks(data.data);
-        }
-    }, [data, clientMode]);
 
-    // Automatically sync with server after client-side filtering
-    useEffect(() => {
-        if (clientMode) {
-            // Auto-sync with server after a short delay
-            const syncTimer = setTimeout(() => {
-                setLastServerQuery({ ...queryParams });
+            // If URL parameters match server query, exit client mode
+            if (queryParams.searchQuery === lastServerQuery.searchQuery &&
+                queryParams.tag === lastServerQuery.tag &&
+                queryParams.sort === lastServerQuery.sort &&
+                queryParams.page === lastServerQuery.page) {
                 setClientMode(false);
-            }, 800); // Delay server sync to prevent too many requests
-
-            return () => clearTimeout(syncTimer);
+            }
         }
-    }, [clientMode, queryParams]);
+    }, [data]);
 
     const totalPages = data?.meta?.pagination?.pageCount || 1;
 
@@ -161,7 +161,7 @@ export default function BooksClientUI({
             const search = queryParams.searchQuery.toLowerCase();
             results = results.filter(book =>
                 book.title.toLowerCase().includes(search) ||
-                book.author.toLowerCase().includes(search)
+                (book.author && book.author.toLowerCase().includes(search))
             );
         }
 
@@ -203,6 +203,11 @@ export default function BooksClientUI({
         if (!tag) {
             setClientMode(false);
             updateQueryParams({ tag: "", page: 1 });
+            setLastServerQuery(prev => ({
+                ...prev,
+                tag: "",
+                page: 1
+            }));
             return;
         }
 
@@ -218,7 +223,6 @@ export default function BooksClientUI({
 
     const handleSortChange = (newSort: string) => {
         setClientMode(true);
-
         setQueryParams(prev => ({
             ...prev,
             sort: newSort,
@@ -227,17 +231,17 @@ export default function BooksClientUI({
         updateQueryParamsDelayed({
             sort: newSort,
             page: 1
-        }, 300);
+        }, 100);
     };
 
     const handlePageChange = (newPage: number) => {
         // For pagination need server data
         setClientMode(false);
+        updateQueryParams({ page: newPage });
         setLastServerQuery(prev => ({
             ...prev,
             page: newPage
         }));
-        updateQueryParams({ page: newPage });
     };
 
     const updateQueryParamsDelayed = (
@@ -257,7 +261,6 @@ export default function BooksClientUI({
                 ...updates
             }));
 
-            setClientMode(false);
         }, delayMs);
     };
 
@@ -278,6 +281,11 @@ export default function BooksClientUI({
         if (queryParams.tag) {
             setClientMode(false);
             updateQueryParams({ tag: "", page: 1 });
+            setLastServerQuery(prev => ({
+                ...prev,
+                tag: "",
+                page: 1
+            }));
         }
     };
 
