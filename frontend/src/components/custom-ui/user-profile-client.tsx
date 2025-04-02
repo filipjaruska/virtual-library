@@ -19,10 +19,22 @@ interface UserProfileStats {
 export default function UserProfileClient({ user, favorites, stats }: any) {
     const [activeTab, setActiveTab] = useState("favorites")
 
-    // Early return if user data isn't available
     if (!user.ok) {
         return <div className="p-8 text-center">User information not available</div>
     }
+
+    const getAvatarUrl = (image: any) => {
+        if (!image) return "https://placehold.co/96x96";
+
+        if (typeof image === 'string') return image;
+
+        if (image.formats?.thumbnail?.url) return image.formats.thumbnail.url;
+        if (image.url) return image.url;
+
+        if (image.image?.url) return image.image.url;
+
+        return "https://placehold.co/96x96";
+    };
 
     return (
         <div className="container mx-auto py-8 px-4">
@@ -41,12 +53,7 @@ export default function UserProfileClient({ user, favorites, stats }: any) {
                             <CardContent>
                                 <div className="flex flex-col items-center space-y-4">
                                     <Avatar className="h-24 w-24">
-                                        <AvatarImage
-                                            src={user.data.image?.formats?.thumbnail?.url || user.data.image?.url || "https://placehold.co/96x96"}
-                                            alt={`${user.data.username || 'User'}'s avatar`}
-                                            height={96}
-                                            width={96}
-                                        />
+                                        <AvatarImage src={getAvatarUrl(user.data?.image)} alt="User Avatar" height={96} width={96} />
                                     </Avatar>
 
                                     <div className="text-center">
