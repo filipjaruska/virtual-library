@@ -7,7 +7,6 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import { BookOpen, Heart, User2, BarChart3, BookMarked, Users, MessageSquare } from "lucide-react"
 import BookCard from "@/components/custom-ui/book-card"
 import { Badge } from "@/components/ui/badge"
-import { User } from "@/lib/types/books"
 
 interface UserProfileStats {
     totalFavorites: number;

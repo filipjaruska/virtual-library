@@ -21,7 +21,8 @@ export function useBooks({
   initialData,
 }: UseBooksOptions) {
   return useQuery({
-    queryKey: ["books", { searchQuery, tag, page, pageSize, sort }],
+    // More specific query key to ensure proper cache invalidation
+    queryKey: ["books", searchQuery, tag, page, sort],
     queryFn: async () => {
       return await getBooksPageData(searchQuery, tag, page, pageSize, sort);
     },
