@@ -21,17 +21,11 @@ export function useBooks({
   initialData,
 }: UseBooksOptions) {
   return useQuery({
-    // More specific query key to ensure proper cache invalidation
+    // Simple array-based key for better cache management
     queryKey: ["books", searchQuery, tag, page, sort],
-    queryFn: async () => {
-      return await getBooksPageData(searchQuery, tag, page, pageSize, sort);
-    },
+    queryFn: () => getBooksPageData(searchQuery, tag, page, pageSize, sort),
     initialData,
-    staleTime: 10 * 60 * 1000, // 10 minutes
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
-    retry: 3,
-    retryDelay: (attempt) => Math.min(attempt > 1 ? 2000 : 1000, 30 * 1000),
+    // Let React Query handle the caching automatically
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
