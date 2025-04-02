@@ -1,8 +1,8 @@
 import { getBooksPageData } from "@/lib/loaders";
-import BooksClientUI from "@/components/books/books-client-ui";
 import { Suspense } from "react";
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import LoadingBooksPage from "./loading";
+import BooksClientUI from "@/components/custom-ui/books-client-ui";
 
 interface PageProps {
     searchParams: Promise<{
