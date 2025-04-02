@@ -6,6 +6,7 @@ import BookGrid from "@/components/section/bookgrid-section";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBooks } from "@/hooks/use-books";
+import { useDebounce } from "@/hooks/use-debounce";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FaSearch } from "react-icons/fa";
@@ -32,6 +33,7 @@ export default function BooksClientUI({
     const searchParams = useSearchParams();
 
     const [searchInput, setSearchInput] = useState(initialSearchQuery);
+    const debouncedSearchInput = useDebounce(searchInput, 150);
 
     const currentSearchQuery = searchParams.get('search') || initialSearchQuery;
     const currentTag = searchParams.get('tag') || initialTag;
@@ -52,6 +54,12 @@ export default function BooksClientUI({
     useEffect(() => {
         setSearchInput(currentSearchQuery);
     }, [currentSearchQuery]);
+
+    useEffect(() => {
+        if (debouncedSearchInput !== currentSearchQuery) {
+            navigate({ search: debouncedSearchInput });
+        }
+    }, [debouncedSearchInput]);
 
     const books = data?.data || [];
     const totalPages = data?.meta?.pagination?.pageCount || initialTotalPages;
@@ -184,7 +192,6 @@ export default function BooksClientUI({
                     </div>
                 )}
 
-                {/* Display books or loading UI */}
                 {isLoading && books.length === 0 ? (
                     <div className="p-4">
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4">
