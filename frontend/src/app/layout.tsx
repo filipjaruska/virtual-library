@@ -64,6 +64,7 @@ export default async function RootLayout({
                         attribute="class"
                         defaultTheme="system"
                         enableSystem
+                        themes={["light", "dark", "odark"]}
                         disableTransitionOnChange
                     >
                         <Header data={globalData?.header} />
