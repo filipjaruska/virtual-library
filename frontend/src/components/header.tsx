@@ -57,10 +57,13 @@ export async function Header({ data }: Readonly<HeaderProps>) {
 
         if (typeof image === 'string') return image;
 
-        if (image.formats?.thumbnail?.url) return image.formats.thumbnail.url;
+        if (image.formats && image.formats.thumbnail && image.formats.thumbnail.url) {
+            return image.formats.thumbnail.url;
+        }
+
         if (image.url) return image.url;
 
-        if (image.image?.url) return image.image.url;
+        if (image.image && image.image.url) return image.image.url;
 
         return "https://placehold.co/40x40";
     };
@@ -86,6 +89,9 @@ export async function Header({ data }: Readonly<HeaderProps>) {
                         <DropdownMenuTrigger asChild>
                             <Avatar className="cursor-pointer hover:scale-105" tabIndex={-1}>
                                 <AvatarImage src={getAvatarUrl(user.data?.image)} alt="User Avatar" height={40} width={40} />
+                                <AvatarFallback>
+                                    {user.data?.username ? user.data.username.substring(0, 2).toUpperCase() : "GU"}
+                                </AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent tabIndex={-1}>
