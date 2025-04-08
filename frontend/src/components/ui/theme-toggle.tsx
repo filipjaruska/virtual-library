@@ -10,8 +10,8 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 export function ModeToggle() {
     const { theme, setTheme, resolvedTheme } = useTheme()
 
-    const getVariant = (theme: string) => {
-        switch (theme) {
+    const getVariant = (currentTheme: string | undefined) => {
+        switch (currentTheme) {
             case 'dark':
                 return 'dark'
             case 'odark':
@@ -24,7 +24,7 @@ export function ModeToggle() {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant={getVariant(resolvedTheme!.toString())} size="icon">
+                <Button variant={getVariant(resolvedTheme)} size="icon">
                     <Sun className={`h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === 'light' ? 'scale-100' : 'scale-0'}`} />
                     <Moon className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === 'dark' ? 'scale-100' : 'scale-0'}`} />
                     <GiBlackHoleBolas className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === 'odark' ? 'scale-100' : 'scale-0'}`} />

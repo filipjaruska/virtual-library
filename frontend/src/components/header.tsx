@@ -32,7 +32,6 @@ interface HeaderProps {
 
 export async function Header({ data }: Readonly<HeaderProps>) {
     if (!data) {
-        console.error("Header data is undefined");
         return (
             <div className="flex items-center justify-between px-4 py-3 bg-secondary text-secondary-foreground shadow-md">
                 <div className="flex items-center gap-4">

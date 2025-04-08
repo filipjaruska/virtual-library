@@ -218,13 +218,7 @@ export async function getAuthorStats() {
   });
 
   try {
-    const response = await fetch(url, {
-      next: { revalidate: CACHE_DURATIONS.LONG },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
+    const data = await fetchData(url, CACHE_DURATIONS.LONG, true);
 
     if (!data.data || !Array.isArray(data.data)) {
       return { total: 0 };
@@ -254,13 +248,8 @@ export async function getTagsData() {
   });
 
   try {
-    const response = await fetch(url, {
-      next: { revalidate: CACHE_DURATIONS.LONG },
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
+    const data = await fetchData(url, CACHE_DURATIONS.LONG, true);
+
     let allTags: any[] = [];
     if (data.data && Array.isArray(data.data)) {
       for (const book of data.data) {
@@ -329,19 +318,10 @@ export async function generateBooksChartData() {
   });
 
   try {
-    const [booksResponse, commentsResponse] = await Promise.all([
-      fetch(booksUrl, {
-        next: { revalidate: CACHE_DURATIONS.MEDIUM },
-        headers: { "Content-Type": "application/json" },
-      }),
-      fetch(commentsUrl, {
-        next: { revalidate: CACHE_DURATIONS.MEDIUM },
-        headers: { "Content-Type": "application/json" },
-      }),
+    const [booksData, commentsData] = await Promise.all([
+      fetchData(booksUrl, CACHE_DURATIONS.MEDIUM, true),
+      fetchData(commentsUrl, CACHE_DURATIONS.MEDIUM, true),
     ]);
-
-    const booksData = await booksResponse.json();
-    const commentsData = await commentsResponse.json();
 
     const booksByMonthYear: { [key: string]: number } = {};
     booksData.data.forEach((book: any) => {
