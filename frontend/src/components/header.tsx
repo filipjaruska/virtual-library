@@ -88,9 +88,6 @@ export async function Header({ data }: Readonly<HeaderProps>) {
                         <DropdownMenuTrigger asChild>
                             <Avatar className="cursor-pointer hover:scale-105" tabIndex={-1}>
                                 <AvatarImage src={getAvatarUrl(user.data?.image)} alt="User Avatar" height={40} width={40} />
-                                <AvatarFallback>
-                                    {user.data?.username ? user.data.username.substring(0, 2).toUpperCase() : "GU"}
-                                </AvatarFallback>
                             </Avatar>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent tabIndex={-1}>
