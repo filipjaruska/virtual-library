@@ -5,15 +5,16 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 const CommentsLoading = () => (
     <div className="space-y-4">
-        {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-card p-4 rounded-lg shadow-sm">
-                <Skeleton className="h-4 w-1/4 mb-2" />
-                <Skeleton className="h-4 w-full" />
+        {Array.from({ length: 3 }).map((_, index) => (
+            <div key={index} className="bg-card p-4 rounded-lg shadow-sm">
+                <Skeleton className="h-4 w-48 mb-2" />
+                <Skeleton className="h-16 w-full" />
             </div>
         ))}
     </div>
 );
 
+// Component that fetches the comments
 const CommentsLoader = async ({ bookId }: { bookId: number }) => {
     const comments = await getBookComments(bookId);
     return <CommentsList comments={comments} />;
