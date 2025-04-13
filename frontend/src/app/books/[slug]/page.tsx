@@ -1,7 +1,7 @@
-import { CommentsList } from "@/components/custom-ui/comments-list"
 import { ExternalLinks } from "@/components/custom-ui/external-links"
 import { FavoriteButton } from "@/components/custom-ui/favorite-button"
 import Tags from "@/components/custom-ui/tags"
+import { BookComments } from "@/components/custom-ui/book-comments"
 import CreateCommentForm from "@/components/form/comment-form"
 import { StrapiImage } from "@/components/ui/strapi-image"
 import { getBookData } from "@/lib/loaders"
@@ -19,7 +19,6 @@ export default async function BookPage(props: {
     }
 
     const user: any = await getUserMeLoader()
-
 
     return (
         <div className="mx-auto py-8 px-4 md:px-8 max-w-6xl">
@@ -68,7 +67,7 @@ export default async function BookPage(props: {
 
             <div className="mt-8">
                 <CreateCommentForm bookId={bookData.id} canSubmit={user.ok} user={user.data} />
-                <CommentsList comments={bookData?.comments?.data || []} />
+                <BookComments bookId={bookData.id} />
             </div>
         </div>
     )

@@ -24,12 +24,18 @@ function buildApiUrl(endpoint: string, queryParams: object = {}): string {
 }
 
 /**
- * Core fetch function with option to preserve metadata
+ * Fetches data from the Strapi API with optional caching and authentication
+ * @param url API URL to fetch data from
+ * @param cacheDuration Duration for caching the response (in seconds)
+ * @param preserveMeta Whether to preserve meta information in the response
+ * @param disableCache Whether to disable caching for this request
+ * @returns Parsed JSON response or throws an error if the request fails
  */
 async function fetchData(
   url: string,
   cacheDuration = CACHE_DURATIONS.MEDIUM,
-  preserveMeta = false
+  preserveMeta = false,
+  disableCache = false
 ) {
   const authToken = await getAuthToken();
   const headers = {
@@ -38,14 +44,20 @@ async function fetchData(
   };
 
   try {
-    const response = await fetch(url, {
+    const fetchOptions: RequestInit = {
       method: "GET",
       headers,
-      next: { revalidate: cacheDuration },
-    });
+    };
+
+    if (disableCache) {
+      fetchOptions.cache = "no-store";
+    } else {
+      fetchOptions.next = { revalidate: cacheDuration };
+    }
+
+    const response = await fetch(url, fetchOptions);
     const data = await response.json();
 
-    // If we need to preserve meta info, return data as is
     if (preserveMeta) {
       return data;
     }
@@ -68,14 +80,6 @@ export async function getBookData(slug: string) {
       },
       tags: {
         fields: ["name"],
-      },
-      comments: {
-        populate: {
-          user: {
-            fields: ["id", "username"],
-          },
-        },
-        fields: ["content", "createdAt"],
       },
       links: {
         fields: ["text", "url"],
@@ -369,5 +373,28 @@ export async function generateBooksChartData() {
     }));
   } catch (error) {
     console.error("Failed to generate books chart data:", error);
+  }
+}
+
+export async function getBookComments(bookId: number) {
+  const url = buildApiUrl(`/api/books/${bookId}`, {
+    populate: {
+      comments: {
+        populate: {
+          user: {
+            fields: ["id", "username"],
+          },
+        },
+        fields: ["content", "createdAt"],
+      },
+    },
+  });
+
+  try {
+    const data = await fetchData(url, CACHE_DURATIONS.SHORT, false, true);
+    return data?.comments?.data || [];
+  } catch (error) {
+    console.error("Error fetching book comments:", error);
+    return [];
   }
 }
