@@ -14,7 +14,6 @@ const CommentsLoading = () => (
     </div>
 );
 
-// Component that fetches the comments
 const CommentsLoader = async ({ bookId }: { bookId: number }) => {
     const comments = await getBookComments(bookId);
     return <CommentsList comments={comments} />;

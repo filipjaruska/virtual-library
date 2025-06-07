@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { env } from "@/env";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -46,9 +47,14 @@ export function flattenAttributes(data: any): any {
 }
 
 export function getStrapiURL() {
-  const url = process.env.NEXT_PUBLIC_STRAPI_URL ?? "http://localhost:1337";
-  // Remove trailing slash if present to avoid double slashes
-  return url.endsWith("/") ? url.slice(0, -1) : url;
+  try {
+    const url = env.NEXT_PUBLIC_STRAPI_URL;
+    return url.endsWith("/") ? url.slice(0, -1) : url;
+  } catch (error) {
+    const fallbackUrl =
+      process.env.NEXT_PUBLIC_STRAPI_URL ?? "http://localhost:1337";
+    return fallbackUrl.endsWith("/") ? fallbackUrl.slice(0, -1) : fallbackUrl;
+  }
 }
 
 export function getStrapiMedia(url: string | null, format: string = "large") {
