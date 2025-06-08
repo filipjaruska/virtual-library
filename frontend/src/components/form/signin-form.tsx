@@ -30,6 +30,17 @@ export function SigninForm() {
     const [formState, formAction] = useActionState(loginUserAction, initialState);
     return (
         <div className="w-full max-w-md">
+            <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 text-blue-800">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span className="text-sm font-medium">Test Credentials</span>
+                </div>
+                <div className="mt-1 text-sm text-blue-700">
+                    <div><strong>Username:</strong> testuser</div>
+                    <div><strong>Password:</strong> testuser</div>
+                </div>
+            </div>
+
             <form action={formAction}>
                 <Card>
                     <CardHeader className="space-y-1">

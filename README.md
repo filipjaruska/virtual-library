@@ -148,7 +148,6 @@ const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
 - `npm run dev` - Start development server with Turbopack
 - `npm run build` - Build for production
 - `npm run start` - Start production server
-- `npm run lint` - Run ESLint
 
 ### Backend
 
@@ -162,21 +161,3 @@ const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
 - Uses React 19 RC - may require `--legacy-peer-deps` flag during installation
 - Environment variables are validated at build time using t3-env
 - Designed for learning and demonstration purposes
-- Some features are experimental and may evolve
-
-## 🤝 Contributing
-
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-**Built with ❤️ for learning and experimentation**
