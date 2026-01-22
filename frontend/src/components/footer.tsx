@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FaGithub, FaTwitter, FaInstagram } from "react-icons/fa";
+import { FaGithub, FaTwitter, FaInstagram, FaGlobe } from "react-icons/fa";
 
 interface SocialLink {
     id: number;
@@ -20,10 +20,10 @@ interface FooterProps {
 }
 
 function selectSocialIcon(url: string) {
-    if (url.includes("twitter")) return <FaTwitter className="h-6 w-6" />;
+    if (url.includes("twitter") || url.includes("x.com")) return <FaTwitter className="h-6 w-6" />;
     if (url.includes("github")) return <FaGithub className="h-6 w-6" />;
     if (url.includes("instagram")) return <FaInstagram className="h-6 w-6" />;
-    return null;
+    return <FaGlobe className="h-6 w-6" />;
 }
 
 export function Footer({ data }: Readonly<FooterProps>) {

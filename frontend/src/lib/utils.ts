@@ -48,7 +48,7 @@ export function flattenAttributes(data: any): any {
 
 export function getStrapiURL() {
   try {
-    const url = env.NEXT_PUBLIC_STRAPI_URL;
+    const url = env.NEXT_PUBLIC_STRAPI_URL || "http://localhost:1337";
     return url.endsWith("/") ? url.slice(0, -1) : url;
   } catch (error) {
     const fallbackUrl =

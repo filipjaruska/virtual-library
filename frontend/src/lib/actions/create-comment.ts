@@ -3,6 +3,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getStrapiURL } from "@/lib/utils";
 import { User } from "@/lib/types/books";
+import { mockComments } from "../mock-data/books";
 
 const fromSchema = z.object({
   comment: z.string().min(4),
@@ -10,11 +11,38 @@ const fromSchema = z.object({
 
 type Comment = z.infer<typeof fromSchema>;
 
+const DEMO_MODE = true;
+
 export const CreateComment = async (
   bookId: number,
   user: User,
-  comment: Comment
+  comment: Comment,
 ) => {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    // In demo mode, just simulate success
+    // We could add the comment to mockComments array if needed
+    const newComment = {
+      id: mockComments.length + 1,
+      content: comment.comment,
+      createdAt: new Date().toISOString(),
+      user: {
+        id: user.id,
+        username: user.username,
+      },
+    };
+
+    mockComments.push(newComment);
+
+    revalidatePath("/");
+    revalidatePath(`/books/[slug]`);
+    revalidatePath(`/books/${bookId}`, "page");
+
+    return { success: "Comment successful" };
+  }
+
   const newVote = await postComment(bookId, user, comment);
 
   revalidatePath("/");
@@ -55,7 +83,7 @@ const postComment = async (bookId: number, user: User, content: Comment) => {
         headers: {
           "Content-Type": "application/json",
         },
-      }
+      },
     );
 
     const bookData = await bookResponse.json();
@@ -66,7 +94,7 @@ const postComment = async (bookId: number, user: User, content: Comment) => {
     }
 
     const existingComments = bookData.data.attributes.comments.data.map(
-      (comment: { id: number }) => comment.id
+      (comment: { id: number }) => comment.id,
     );
 
     const updatedComments = [...existingComments, commentData.data.id];
@@ -83,7 +111,7 @@ const postComment = async (bookId: number, user: User, content: Comment) => {
             comments: updatedComments,
           },
         }),
-      }
+      },
     );
 
     const updateBookData = await updateBookResponse.json();

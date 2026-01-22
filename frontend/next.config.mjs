@@ -13,6 +13,10 @@ const nextConfig = {
         hostname: "virtual-library-production.up.railway.app",
         pathname: "/uploads/**/*",
       },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
     ],
   },
   typescript: {

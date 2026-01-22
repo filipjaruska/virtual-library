@@ -6,8 +6,33 @@ import { mutateData } from "@/lib/services/mutate-data";
 import { getStrapiURL } from "@/lib/utils";
 import qs from "qs";
 import { getAuthToken } from "../services/get-token";
+import { mockBooks } from "../mock-data/books";
+import {
+  mockAddFavorite,
+  mockRemoveFavorite,
+  mockGetFavoriteBooks,
+} from "../mock-data/users";
+
+const DEMO_MODE = true;
 
 export async function getFavoriteBooks() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    const user = await getUserMeLoader();
+    if (!user.ok || !user.data) {
+      return { ok: false, data: null, error: "User not authenticated" };
+    }
+
+    const favoriteBookIds = mockGetFavoriteBooks(user.data.id);
+    const favoriteBooks = mockBooks.filter((book) =>
+      favoriteBookIds.includes(book.id)
+    );
+
+    return { ok: true, data: favoriteBooks, error: null };
+  }
+
   const query = qs.stringify({
     populate: {
       favoriteBooks: {
@@ -38,6 +63,26 @@ export async function getFavoriteBooks() {
 }
 
 export async function addToFavorites(bookId: number) {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const user = await getUserMeLoader();
+    if (!user.ok || !user.data) {
+      return { ok: false, error: "User not authenticated" };
+    }
+
+    const success = mockAddFavorite(user.data.id, bookId);
+
+    if (success) {
+      revalidatePath("/dashboard");
+      revalidatePath(`/books/${bookId}`);
+      return { ok: true, error: null };
+    }
+
+    return { ok: true, error: null, message: "Book already in favorites" };
+  }
+
   const user = await getUserMeLoader();
 
   if (!user.ok) {
@@ -78,6 +123,23 @@ export async function addToFavorites(bookId: number) {
 }
 
 export async function removeFromFavorites(bookId: number) {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    const user = await getUserMeLoader();
+    if (!user.ok || !user.data) {
+      return { ok: false, error: "User not authenticated" };
+    }
+
+    mockRemoveFavorite(user.data.id, bookId);
+
+    revalidatePath("/dashboard");
+    revalidatePath(`/books/${bookId}`);
+
+    return { ok: true, error: null };
+  }
+
   const user = await getUserMeLoader();
 
   if (!user.ok) {
@@ -116,6 +178,21 @@ export async function removeFromFavorites(bookId: number) {
 }
 
 export async function isBookFavorited(bookId: number) {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const user = await getUserMeLoader();
+    if (!user.ok || !user.data) {
+      return { ok: false, isFavorited: false, error: "User not authenticated" };
+    }
+
+    const favoriteBookIds = mockGetFavoriteBooks(user.data.id);
+    const isFavorited = favoriteBookIds.includes(bookId);
+
+    return { ok: true, isFavorited, error: null };
+  }
+
   try {
     const token = await getAuthToken();
     if (!token) {

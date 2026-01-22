@@ -1,6 +1,10 @@
 import qs from "qs";
 import { flattenAttributes, getStrapiURL } from "@/lib/utils";
 import { getAuthToken } from "./services/get-token";
+import { mockBooks, mockComments } from "./mock-data/books";
+import { mockHomePageData } from "./mock-data/homepage";
+import { mockGlobalData, mockGlobalMetadata } from "./mock-data/global";
+import { getMockAuthUser, mockGetFavoriteBooks } from "./mock-data/users";
 
 const baseUrl = getStrapiURL();
 
@@ -10,6 +14,9 @@ const CACHE_DURATIONS = {
   LONG: 24 * 60 * 60,
   VERY_LONG: 72 * 60 * 60,
 };
+
+// Demo mode flag - set to true to use mock data instead of API
+const DEMO_MODE = true;
 
 /**
  * Creates a properly formatted Strapi API URL with query parameters
@@ -70,6 +77,13 @@ async function fetchData(
 }
 
 export async function getBookData(slug: string) {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    const book = mockBooks.find((b) => b.slug === slug);
+    return book || null;
+  }
+
   const url = buildApiUrl("/api/books", {
     filters: {
       slug: { $eq: slug },
@@ -101,6 +115,59 @@ export async function getBooksPageData(
   pageSize: number = 24,
   sort: string = "title:asc"
 ) {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    let filteredBooks = [...mockBooks];
+
+    // Apply search filter
+    if (searchQuery) {
+      filteredBooks = filteredBooks.filter(
+        (book) =>
+          book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          book.description.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Apply tag filter
+    if (tag) {
+      filteredBooks = filteredBooks.filter((book) =>
+        book.tags.some((t) => t.name === tag)
+      );
+    }
+
+    // Apply sorting
+    const [sortField, sortOrder] = sort.split(":");
+    filteredBooks.sort((a, b) => {
+      let aVal = sortField === "title" ? a.title : a.author;
+      let bVal = sortField === "title" ? b.title : b.author;
+
+      if (sortOrder === "desc") {
+        return bVal.localeCompare(aVal);
+      }
+      return aVal.localeCompare(bVal);
+    });
+
+    // Pagination
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    const paginatedBooks = filteredBooks.slice(startIndex, endIndex);
+
+    return {
+      data: paginatedBooks,
+      meta: {
+        pagination: {
+          page,
+          pageSize,
+          pageCount: Math.ceil(filteredBooks.length / pageSize),
+          total: filteredBooks.length,
+        },
+      },
+    };
+  }
+
   const url = buildApiUrl("/api/books", {
     filters: {
       ...(searchQuery && {
@@ -134,6 +201,12 @@ export async function getBooksPageData(
 }
 
 export async function getHomePageData() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return mockHomePageData;
+  }
+
   const url = buildApiUrl("/api/home-page", {
     populate: {
       blocks: {
@@ -159,6 +232,12 @@ export async function getHomePageData() {
 }
 
 export async function getGlobalPageData() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    return mockGlobalData;
+  }
+
   const url = buildApiUrl("/api/global", {
     populate: [
       "header.logoText",
@@ -172,6 +251,12 @@ export async function getGlobalPageData() {
 }
 
 export async function getGlobalPageMetadata() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    return mockGlobalMetadata;
+  }
+
   const url = buildApiUrl("/api/global", {
     fields: ["title", "description"],
   });
@@ -182,6 +267,14 @@ export async function getGlobalPageMetadata() {
 /* Stats for the info page */
 
 export async function getBooksStats() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    return {
+      total: mockBooks.length,
+    };
+  }
+
   const url = buildApiUrl("/api/books", {
     pagination: { limit: 3 },
     fields: ["id"],
@@ -200,6 +293,14 @@ export async function getBooksStats() {
 }
 
 export async function getCommentsStats() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    return {
+      total: mockComments.length,
+    };
+  }
+
   const url = buildApiUrl("/api/comments", {
     pagination: { limit: 3 },
   });
@@ -216,6 +317,15 @@ export async function getCommentsStats() {
 }
 
 export async function getAuthorStats() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    const uniqueAuthors = new Set(mockBooks.map((book) => book.author));
+    return {
+      total: uniqueAuthors.size,
+    };
+  }
+
   const url = buildApiUrl("/api/books", {
     fields: ["author"],
     pagination: { pageSize: 100 },
@@ -245,6 +355,32 @@ export async function getAuthorStats() {
 }
 
 export async function getTagsData() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const allTags: string[] = [];
+    mockBooks.forEach((book) => {
+      book.tags.forEach((tag) => allTags.push(tag.name));
+    });
+
+    const tagCounts: Record<string, number> = {};
+    allTags.forEach((tag) => {
+      tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+    });
+
+    const chartData = Object.entries(tagCounts)
+      .map(([name, count]) => ({ browser: name, visitors: count }))
+      .sort((a, b) => b.visitors - a.visitors)
+      .slice(0, 5);
+
+    return {
+      total: Object.keys(tagCounts).length,
+      tagCounts,
+      chartData,
+    };
+  }
+
   const url = buildApiUrl("/api/books", {
     populate: {
       tags: { populate: "*" },
@@ -309,6 +445,55 @@ export async function getTagsData() {
 }
 
 export async function generateBooksChartData() {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    // Generate realistic mock chart data
+    const booksByMonthYear: { [key: string]: number } = {};
+    mockBooks.forEach((book) => {
+      if (book.createdAt) {
+        try {
+          const date = new Date(book.createdAt);
+          const monthYear = date.toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          });
+          booksByMonthYear[monthYear] = (booksByMonthYear[monthYear] || 0) + 1;
+        } catch {}
+      }
+    });
+
+    const commentsByMonthYear: { [key: string]: number } = {};
+    mockComments.forEach((comment) => {
+      if (comment.createdAt) {
+        try {
+          const date = new Date(comment.createdAt);
+          const monthYear = date.toLocaleString("default", {
+            month: "short",
+            year: "numeric",
+          });
+          commentsByMonthYear[monthYear] =
+            (commentsByMonthYear[monthYear] || 0) + 1;
+        } catch {}
+      }
+    });
+
+    const sortedMonthYears = Object.keys(booksByMonthYear)
+      .sort((a, b) => {
+        const dateA = new Date(a);
+        const dateB = new Date(b);
+        return dateA.getTime() - dateB.getTime();
+      })
+      .slice(-6);
+
+    return sortedMonthYears.map((monthYear) => ({
+      month: monthYear,
+      books: booksByMonthYear[monthYear] || 0,
+      comments: commentsByMonthYear[monthYear] || 0,
+    }));
+  }
+
   const booksUrl = buildApiUrl("/api/books", {
     sort: "createdAt:asc",
     fields: ["createdAt"],
@@ -377,6 +562,16 @@ export async function generateBooksChartData() {
 }
 
 export async function getBookComments(bookId: number) {
+  if (DEMO_MODE) {
+    // Simulate async delay
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    // Return sample comments for demo
+    return mockComments.map((comment) => ({
+      ...comment,
+      data: comment,
+    }));
+  }
+
   const url = buildApiUrl(`/api/books/${bookId}`, {
     populate: {
       comments: {
