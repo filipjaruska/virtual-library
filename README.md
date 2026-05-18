@@ -1,163 +1,156 @@
-# Book Collection - Virtual Library
+# Virtual Library
 
-A modern book collection management system built with Next.js and Strapi. Browse, search, and manage books with features like comments, tags, and analytics.
+This project is the practical part of a bachelor's thesis titled **"Leveraging a Content Management System (CMS) in conjunction with Next.js"** (_"Využití redakčního systému v kombinaci s Next.js"_). The full thesis text is available at [theses.cz/id/m5huc8](https://theses.cz/id/m5huc8/).
 
-## 🌐 Live Demo
+The application is a book collection manager. Users can browse a library of books, filter and sort them, leave comments, mark favourites, and view collection statistics. The point of the project was to demonstrate how a headless CMS (Strapi) can serve as a backend for a modern React frontend (Next.js) -- how the two communicate, what the development workflow looks like, and what trade-offs come with this architecture.
 
-Check out the live demo: **[https://virtual-library-rho.vercel.app/](https://virtual-library-rho.vercel.app/)**
+## Live demo
 
-> **Note:** This is a personal learning project. See [LICENSE](LICENSE) for terms and conditions.
+The frontend is deployed on Vercel: **[virtual-library-rho.vercel.app](https://virtual-library-rho.vercel.app/)**
 
-## ✨ Features
+The demo runs in **demo mode** by default -- it uses bundled mock data instead of calling a live Strapi instance, so you can explore the UI without any backend running. The Strapi backend was originally deployed on [Railway](https://railway.app/) with a PostgreSQL database.
 
-- 📚 **Book Management** - Browse and search book collections
-- 🏷️ **Tag System** - Organize books with customizable tags
-- 💬 **Comments** - Leave reviews and comments on books
-- 📊 **Analytics** - View statistics and reading trends
-- 🔍 **Advanced Search** - Filter by title, author, tags, and more
-- 📱 **Responsive Design** - Works seamlessly on all devices
-- 🌙 **Dark/Light Theme** - Toggle between themes
-- ⌨️ **Keyboard Shortcuts** - Quick navigation with Kbar
-- 🔐 **User Authentication** - Secure login and user profiles
+## What the app does
 
-## 🛠️ Tech Stack
+- **Book catalogue** -- paginated grid of books with cover images, pulled from Strapi's REST API. Each book has a detail page (`/books/[slug]`) with description, external links, and tags.
+- **Search and filtering** -- text search across titles/authors/descriptions, tag-based filtering, and sort by title or author (ascending/descending). All handled server-side through Strapi's query parameter API.
+- **Comments** -- authenticated users can post comments on individual books. Comments are stored as a separate content type in Strapi and linked to books via a relation.
+- **Favourites** -- logged-in users can mark books as favourites. The favourite list is tied to the user record in Strapi and displayed in the dashboard.
+- **User dashboard** (`/dashboard`) -- shows the user's profile, their favourite books, and derived stats (number of favourites, unique authors, most common tag). There is also an account settings page at `/dashboard/account`.
+- **Library statistics** (`/dashboard/information`) -- aggregate stats rendered with [Recharts](https://recharts.org/): total books, total comments, unique authors, a pie chart of tag distribution, and an area chart of monthly additions.
+- **Authentication** -- sign up / sign in forms that talk to Strapi's built-in Users & Permissions plugin. JWT tokens are stored in cookies. A Next.js middleware redirects unauthenticated users away from `/dashboard` and `/books`.
+- **Command bar** -- a [kbar](https://kbar.vercel.app/) command palette (Ctrl+K) for quick navigation between pages and theme switching.
+- **Theming** -- light, dark, and OLED dark themes via [next-themes](https://github.com/pacocoursey/next-themes). Theme preference persists across sessions.
+
+## Architecture
+
+```
+virtual-library/
+  frontend/       Next.js 15 (App Router) + React 19 RC
+  backend/        Strapi v4.25.6
+```
+
+The frontend and backend are separate Node.js applications in a single repository. They communicate exclusively through Strapi's REST API.
 
 ### Frontend
 
-- **Next.js 15** - React framework with App Router
-- **React 19 RC** - Latest React features
-- **TypeScript** - Type safety and better DX
-- **Tailwind CSS** - Utility-first styling
-- **@t3-oss/env-nextjs** - Environment variable validation
-- **Zod** - Schema validation
-- **React Query** - Data fetching and caching
+Built with Next.js 15 using the App Router. Key implementation details:
+
+- **Data loading** -- all Strapi API calls go through `src/lib/loaders.ts`, which builds query strings with the [qs](https://github.com/ljharb/qs) library (Strapi's filtering/population/pagination syntax requires nested query parameters). Responses are flattened from Strapi's nested `{ data: { attributes: ... } }` format into plain objects via a `flattenAttributes` utility.
+- **Caching** -- uses Next.js `fetch` with `next.revalidate` for ISR-style caching. Different endpoints use different TTLs (5 minutes for book listings, 1 hour for stats, 24 hours for global layout data).
+- **Demo mode** -- a `DEMO_MODE` flag in `loaders.ts` short-circuits all API calls and returns data from static mock files in `src/lib/mock-data/`. This is what the Vercel deployment uses, so the app works without a running backend.
+- **Environment validation** -- uses [@t3-oss/env-nextjs](https://env.t3.gg/) with Zod schemas to validate `NEXT_PUBLIC_STRAPI_URL` and other env vars at build time. Can be skipped with `SKIP_ENV_VALIDATION=true` for demo mode.
+- **UI components** -- built with [Radix UI](https://www.radix-ui.com/) primitives (dialog, dropdown menu, tabs, accordion, tooltip, select, etc.) and styled with [Tailwind CSS](https://tailwindcss.com/). Component variants managed with [class-variance-authority](https://cva.style/docs).
+- **Forms** -- [React Hook Form](https://react-hook-form.com/) with Zod resolvers for login, signup, comments, and profile editing.
+- **Server actions** -- comment creation, favourite toggling, authentication, and profile updates are implemented as Next.js Server Actions in `src/lib/actions/`.
 
 ### Backend
 
-- **Strapi v4** - Headless CMS
-- **SQLite/PostgreSQL** - Database options
-- **REST API** - Data communication
+Strapi v4 with the following content types (defined in `backend/src/api/`):
 
-## 📁 Project Structure
+- **Book** -- title, author, description, slug, cover image (media), tags (relation to Tag), external links (component), comments (relation to Comment).
+- **Comment** -- content text, linked to a Book and a User.
+- **Home Page** -- single type with dynamic zones for hero section, features section, and Q&A section. This is how the landing page content is managed through the Strapi admin panel.
+- **Global** -- single type for site-wide data: header logo/nav, footer content, social links, and SEO metadata (title, description).
 
-```
-bc/
-├── frontend/          # Next.js frontend application
-├── backend/           # Strapi CMS backend
-├── CONTRIBUTING.md    # Contribution guidelines
-├── LICENSE            # MIT License
-└── README.md          # This file
-```
+The database config (`backend/config/database.js`) supports SQLite for local development and PostgreSQL for production. The production deployment on Railway used a PostgreSQL instance connected via `DATABASE_URL`.
 
-## 🚀 Local Development
+## Running it locally
 
 ### Prerequisites
 
-- Node.js 18.x or higher
-- npm or yarn package manager
+- Node.js 18 or newer
+- npm
 
-### Installation
-
-1. **Clone the repository**
-
-   ```bash
-   git clone <repository-url>
-   cd bc
-   ```
-
-2. **Setup Backend (Strapi)**
-
-   ```bash
-   cd backend
-   npm install
-   cp .env.example .env
-   # Edit .env with your configuration
-   npm run develop
-   ```
-
-3. **Setup Frontend (Next.js)**
-
-   ```bash
-   cd frontend
-   npm install --legacy-peer-deps
-   cp .env.example .env.local
-   # Edit .env.local with your Strapi URL
-   npm run dev
-   ```
-
-4. **Access the applications**
-   - Frontend: http://localhost:3000
-   - Strapi Admin: http://localhost:1337/admin
-
-## 🔧 Environment Variables
-
-Environment variables are validated using `@t3-oss/env-nextjs` to ensure type safety and proper configuration.
-
-### Frontend (.env.local)
+### Backend (Strapi)
 
 ```bash
-# REQUIRED: Strapi backend URL (must be a valid URL)
+cd backend
+npm install
+cp .env.example .env
+```
+
+Edit `.env` and set the required secrets (`APP_KEYS`, `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`, `JWT_SECRET`). You can generate random values with `openssl rand -base64 32`. For local development, the database defaults to SQLite, so you do not need to set `DATABASE_URL`.
+
+```bash
+npm run develop
+```
+
+Strapi admin panel will be at `http://localhost:1337/admin`. On first run it will ask you to create an admin account.
+
+### Frontend (Next.js)
+
+```bash
+cd frontend
+npm install --legacy-peer-deps
+cp .env.example .env.local
+```
+
+The `--legacy-peer-deps` flag is needed because the project uses React 19 RC, and some dependencies have not updated their peer dependency ranges yet.
+
+To connect to your local Strapi, edit `.env.local`:
+
+```
+SKIP_ENV_VALIDATION=false
 NEXT_PUBLIC_STRAPI_URL="http://localhost:1337"
-
-# OPTIONAL: Node environment (defaults to 'development')
-NODE_ENV="development"
-
-# OPTIONAL: Host for deployment
-HOST="localhost"
-
-# OPTIONAL: Skip environment validation during build (useful for Docker builds)
-# SKIP_ENV_VALIDATION=true
 ```
 
-### Backend (.env)
+You also need to set `DEMO_MODE = false` in the following files (they default to `true`):
+
+- `src/lib/loaders.ts`
+- `src/lib/services/auth-service.ts`
+- `src/lib/services/get-token.ts`
+- `src/lib/services/get-user-me-loader.ts`
+- `src/lib/actions/favorite-actions.ts`
+- `src/lib/actions/create-comment.ts`
+
+Then start the dev server:
 
 ```bash
-HOST=0.0.0.0
-PORT=1337
-APP_KEYS="your-app-keys"
-API_TOKEN_SALT="your-api-token-salt"
-ADMIN_JWT_SECRET="your-admin-jwt-secret"
-TRANSFER_TOKEN_SALT="your-transfer-token-salt"
-JWT_SECRET="your-jwt-secret"
+npm run dev
 ```
 
-### Environment Validation
+The frontend will be at `http://localhost:3000`.
 
-The frontend uses t3-env for runtime environment variable validation. If you add new environment variables:
+To run in **demo mode** without a backend, keep `SKIP_ENV_VALIDATION=true` and `DEMO_MODE = true` (the defaults). The app will serve mock data for all pages.
 
-1. Update `src/env.ts` with the new variable schema
-2. Add the variable to the `runtimeEnv` object
-3. Use the validated `env` object instead of `process.env` directly
+### Available scripts
 
-Example:
+| Directory  | Command              | Description                          |
+|------------|----------------------|--------------------------------------|
+| `frontend` | `npm run dev`        | Start Next.js dev server             |
+| `frontend` | `npm run build`      | Production build                     |
+| `frontend` | `npm run start`      | Start production server              |
+| `frontend` | `npm run lint`       | Run ESLint                           |
+| `backend`  | `npm run develop`    | Start Strapi in development mode     |
+| `backend`  | `npm run start`      | Start Strapi in production mode      |
+| `backend`  | `npm run build`      | Build the Strapi admin panel         |
+| `backend`  | `npm run strapi`     | Access the Strapi CLI                |
 
-```typescript
-import { env } from "@/env";
+## Key dependencies
 
-// ✅ Good - validated and type-safe
-const apiUrl = env.NEXT_PUBLIC_STRAPI_URL;
+| Package | Version | What it does in this project |
+|---|---|---|
+| [next](https://nextjs.org/) | 15.x | App Router, server components, server actions, middleware |
+| [react](https://react.dev/) | 19.0.0-rc | Used the release candidate for `useFormStatus`, `useOptimistic`, and other React 19 APIs |
+| [@strapi/strapi](https://strapi.io/) | 4.25.6 | Headless CMS, REST API, user auth, media uploads |
+| [@tanstack/react-query](https://tanstack.com/query) | 5.x | Client-side data fetching and cache management |
+| [kbar](https://kbar.vercel.app/) | 0.1.0-beta.45 | Command palette UI |
+| [recharts](https://recharts.org/) | 2.x | Charts on the statistics page |
+| [zod](https://zod.dev/) | 3.x | Schema validation for forms and environment variables |
+| [motion](https://motion.dev/) | 11.x | Animations |
 
-// ❌ Avoid - no validation or type safety
-const apiUrl = process.env.NEXT_PUBLIC_STRAPI_URL;
-```
+## Services used for deployment
 
-## 💻 Development Scripts
+- **[Vercel](https://vercel.com/)** -- frontend hosting. The free tier was sufficient. Vercel also provides the `@vercel/speed-insights` package integrated in the app.
+- **[Railway](https://railway.app/)** -- backend (Strapi) hosting with a managed PostgreSQL database. The Strapi instance ran as a standard Node.js service.
 
-### Frontend
+## Notes
 
-- `npm run dev` - Start development server with Turbopack
-- `npm run build` - Build for production
-- `npm run start` - Start production server
+- The project uses React 19 RC. Some dependency installations will show peer dependency warnings -- this is expected and the reason for the `--legacy-peer-deps` flag.
+- Environment variables are validated at build time when `SKIP_ENV_VALIDATION` is not set. If the build fails with a URL validation error, make sure `NEXT_PUBLIC_STRAPI_URL` includes the protocol (`https://`).
+- The trailing slash on URLs can sometimes cause issues with Strapi API calls. The `.env.example` file notes this.
 
-### Backend
+## License
 
-- `npm run develop` - Start in development mode
-- `npm run start` - Start in production mode
-- `npm run build` - Build admin panel
-- `npm run strapi` - Access Strapi CLI
-
-## 🔧 Known Considerations
-
-- Uses React 19 RC - may require `--legacy-peer-deps` flag during installation
-- Environment variables are validated at build time using t3-env
-- Designed for learning and demonstration purposes
+MIT. See [LICENSE](LICENSE).
