@@ -1,52 +1,47 @@
-import { getBooksPageData } from "@/lib/loaders";
-import { Suspense } from "react";
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
-import LoadingBooksPage from "./loading";
+import type { Metadata } from "next";
 import BooksClientUI from "@/components/custom-ui/books-client-ui";
+import { getBooks, getTags } from "@/lib/content";
+import { DEFAULT_SORT, isBookSort } from "@/lib/types/books";
 
-interface PageProps {
-    searchParams: Promise<{
-        search?: string | string[];
-        tag?: string | string[];
-        page?: string | string[];
-        sort?: string | string[];
-    }>;
+export const metadata: Metadata = {
+  title: "Books",
+  description: "Browse, search and filter the collection.",
+};
+
+const PAGE_SIZE = 24;
+
+function first(value: string | string[] | undefined): string {
+  return typeof value === "string" ? value : "";
 }
 
-export default async function Page({
-    searchParams,
-}: PageProps) {
-    const params = await searchParams;
+export default async function BooksPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
 
-    const searchQuery = typeof params.search === 'string' ? params.search : '';
-    const tag = typeof params.tag === 'string' ? params.tag : '';
-    const page = typeof params.page === 'string' ? parseInt(params.page) : 1;
-    const pageSize = 24;
-    const sort = typeof params.sort === 'string' ? params.sort : 'title:asc';
+  const search = first(params.search);
+  const tag = first(params.tag);
+  const sortParam = first(params.sort);
+  const sort = isBookSort(sortParam) ? sortParam : DEFAULT_SORT;
+  const page = Math.max(1, Number.parseInt(first(params.page), 10) || 1);
 
-    const queryClient = new QueryClient();
+  const [books, tags] = await Promise.all([
+    getBooks({ search, tag, page, pageSize: PAGE_SIZE, sort }),
+    getTags(),
+  ]);
 
-    await queryClient.prefetchQuery({
-        queryKey: ['books', { searchQuery, tag, page, pageSize, sort }],
-        queryFn: async () => await getBooksPageData(searchQuery, tag, page, pageSize, sort),
-    });
-
-    const data = await getBooksPageData(searchQuery, tag, page, pageSize, sort);
-    const books = data?.data || [];
-    const totalPages = data?.meta?.pagination?.pageCount || 1;
-
-    return (
-        <Suspense fallback={<LoadingBooksPage />}>
-            <HydrationBoundary state={dehydrate(queryClient)}>
-                <BooksClientUI
-                    initialBooks={books}
-                    initialTotalPages={totalPages}
-                    initialPage={page}
-                    initialSearchQuery={searchQuery}
-                    initialTag={tag}
-                    initialSort={sort}
-                />
-            </HydrationBoundary>
-        </Suspense>
-    );
+  return (
+    <BooksClientUI
+      books={books.items}
+      tags={tags}
+      total={books.total}
+      page={books.page}
+      pageCount={books.pageCount}
+      search={search}
+      tag={tag}
+      sort={sort}
+    />
+  );
 }

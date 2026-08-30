@@ -1,20 +1,15 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { useEffect, useState } from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { type ThemeProviderProps } from "next-themes/dist/types"
+import { ThemeProvider as NextThemesProvider, type ThemeProviderProps } from "next-themes";
 
+/**
+ * next-themes renders its children on the server and resolves the theme from an
+ * inline script before paint. Gating this on a mounted flag would blank the
+ * server HTML for every page, so only components that read the *resolved* theme
+ * (the toggle) wait for mount.
+ */
 export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
-    const [mounted, setMounted] = useState(false)
-
-    useEffect(() => {
-        setMounted(true)
-    }, [])
-
-    if (!mounted) return null
-
-    return <NextThemesProvider {...props}>{children}</NextThemesProvider>
+  return <NextThemesProvider {...props}>{children}</NextThemesProvider>;
 }
 
-export default ThemeProvider
+export default ThemeProvider;

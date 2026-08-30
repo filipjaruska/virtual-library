@@ -1,34 +1,29 @@
-import React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import type { QnaBlock } from "@/lib/types/site";
 
-interface QnaProps {
-    id: number;
-    heading: string;
-    answer: string;
-}
+export default function QnaSection({ data }: { readonly data: QnaBlock }) {
+  const { title, qnas } = data;
 
-interface QnaSectionProps {
-    id: number;
-    __component: string;
-    title: string;
-    qnas: QnaProps[],
-}
-
-export default function QnaSection({ data }: { readonly data: QnaSectionProps }) {
-    const { title, qnas } = data;
-    return (
-        <section className="container px-4 py-6 mx-auto md:px-6 lg:py-24">
-            <Accordion type="single" collapsible className="w-full md:w-1/2 mx-auto">
-                <div className="text-2xl font-semibold">{title}</div>
-                {qnas.map((qna) => (
-                    <AccordionItem key={qna.id} value={String(qna.id)}>
-                        <AccordionTrigger>{qna.heading}</AccordionTrigger>
-                        <AccordionContent>
-                            {qna.answer}
-                        </AccordionContent>
-                    </AccordionItem>
-                ))}
-            </Accordion>
-        </section>
-    );
+  return (
+    <section className="container mx-auto px-4 pb-20 md:px-6">
+      <div className="mx-auto w-full max-w-2xl">
+        <h2 className="mb-6 text-2xl font-semibold">{title}</h2>
+        <Accordion type="single" collapsible className="w-full">
+          {qnas.map((qna) => (
+            <AccordionItem key={qna.id} value={String(qna.id)}>
+              <AccordionTrigger className="text-left">{qna.heading}</AccordionTrigger>
+              <AccordionContent className="text-muted-foreground">
+                {qna.answer}
+              </AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
+    </section>
+  );
 }

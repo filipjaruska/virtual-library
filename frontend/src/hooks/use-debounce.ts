@@ -1,33 +1,23 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
- * A hook to debounce a changing value
- *
- * @param value The value to debounce
- * @param delay The delay in ms before the value updates
- * @returns The debounced value
+ * Debounces a changing value. Clearing a string is applied immediately — a user
+ * emptying the search box expects the full list back at once, not after a wait.
  */
 export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+  const [debounced, setDebounced] = useState<T>(value);
 
   useEffect(() => {
-    if (typeof value === "string" && value === "") {
-      setDebouncedValue(value);
+    if (value === "") {
+      setDebounced(value);
       return;
     }
 
-    // Set a timeout to update the debounced value after delay
-    const timer = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    // Clear the timeout
-    return () => {
-      clearTimeout(timer);
-    };
+    const timer = setTimeout(() => setDebounced(value), delay);
+    return () => clearTimeout(timer);
   }, [value, delay]);
 
-  return debouncedValue;
+  return debounced;
 }

@@ -1,32 +1,24 @@
-import { MetadataRoute } from "next";
-import { getStrapiURL } from "@/lib/utils";
+import type { MetadataRoute } from "next";
+import { getBookSlugs } from "@/lib/content";
+
+const BASE_URL = "https://virtual-library-rho.vercel.app";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://virtual-library-rho.vercel.app/";
+  const lastModified = new Date();
 
-  const routes = ["", "/books", "/signin", "/signup"].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: "weekly" as const,
-    priority: route === "" ? 1 : 0.8,
+  const staticRoutes: MetadataRoute.Sitemap = [
+    { url: BASE_URL, priority: 1, changeFrequency: "monthly", lastModified },
+    { url: `${BASE_URL}/books`, priority: 0.9, changeFrequency: "weekly", lastModified },
+    { url: `${BASE_URL}/stats`, priority: 0.6, changeFrequency: "weekly", lastModified },
+  ];
+
+  const slugs = await getBookSlugs();
+  const bookRoutes: MetadataRoute.Sitemap = slugs.map((slug) => ({
+    url: `${BASE_URL}/books/${slug}`,
+    priority: 0.7,
+    changeFrequency: "monthly",
+    lastModified,
   }));
 
-  try {
-    const booksResponse = await fetch(
-      `${getStrapiURL()}/api/books?fields[0]=slug&pagination[pageSize]=100`
-    );
-    const booksData = await booksResponse.json();
-
-    const bookRoutes = booksData.data.map((book: any) => ({
-      url: `${baseUrl}/books/${book.attributes.slug}`,
-      lastModified: new Date(),
-      changeFrequency: "monthly" as const,
-      priority: 0.6,
-    }));
-
-    return [...routes, ...bookRoutes];
-  } catch (error) {
-    console.error("Error generating dynamic sitemap entries:", error);
-    return routes;
-  }
+  return [...staticRoutes, ...bookRoutes];
 }

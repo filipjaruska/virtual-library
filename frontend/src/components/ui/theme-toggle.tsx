@@ -1,43 +1,64 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { Moon, Sun } from "lucide-react"
-import { GiBlackHoleBolas } from "react-icons/gi"
-import { useTheme } from "next-themes"
-import { Button } from "./button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "./dropdown-menu"
+import { useEffect, useState } from "react";
+import { Moon, Sun } from "lucide-react";
+import { GiBlackHoleBolas } from "react-icons/gi";
+import { useTheme } from "next-themes";
+import { Button } from "./button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+
+const THEMES = [
+  { value: "light", label: "Light", icon: Sun },
+  { value: "dark", label: "Dark", icon: Moon },
+  { value: "odark", label: "OLED dark", icon: GiBlackHoleBolas },
+] as const;
 
 export function ModeToggle() {
-    const { theme, setTheme, resolvedTheme } = useTheme()
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
-    const getVariant = (currentTheme: string | undefined) => {
-        switch (currentTheme) {
-            case 'dark':
-                return 'dark'
-            case 'odark':
-                return 'outline'
-            default:
-                return 'outline'
-        }
-    }
+  // The resolved theme is only known on the client, so the trigger shows a
+  // stable placeholder icon during SSR rather than three invisible ones.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-    return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-                <Button variant={getVariant(resolvedTheme)} size="icon">
-                    <Sun className={`h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === 'light' ? 'scale-100' : 'scale-0'}`} />
-                    <Moon className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === 'dark' ? 'scale-100' : 'scale-0'}`} />
-                    <GiBlackHoleBolas className={`absolute h-[1.2rem] w-[1.2rem] transition-all ${resolvedTheme === 'odark' ? 'scale-100' : 'scale-0'}`} />
-                    <span className="sr-only">Toggle theme</span>
-                </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-                {['light', 'dark', 'odark'].map(theme => (
-                    <DropdownMenuItem key={theme} onClick={() => setTheme(theme)}>
-                        {theme}
-                    </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
-    )
+  const active = THEMES.find((entry) => entry.value === resolvedTheme) ?? THEMES[0];
+  const Icon = active.icon;
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon" aria-label="Change theme">
+          {mounted ? <Icon className="h-[1.2rem] w-[1.2rem]" /> : <Sun className="h-[1.2rem] w-[1.2rem]" />}
+        </Button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end">
+        {THEMES.map((entry) => (
+          <DropdownMenuItem
+            key={entry.value}
+            onClick={() => setTheme(entry.value)}
+            className="cursor-pointer gap-2"
+          >
+            <entry.icon className="h-4 w-4" />
+            {entry.label}
+            {mounted && theme === entry.value && (
+              <span className="ml-auto text-xs text-muted-foreground">active</span>
+            )}
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuItem onClick={() => setTheme("system")} className="cursor-pointer gap-2">
+          <span className="h-4 w-4" />
+          System
+          {mounted && theme === "system" && (
+            <span className="ml-auto text-xs text-muted-foreground">active</span>
+          )}
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }

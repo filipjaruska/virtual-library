@@ -1,80 +1,51 @@
-"use client"
-
-import { Skeleton } from "@/components/ui/skeleton"
-import { motion } from "motion/react"
-import { Heart } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function BookLoadingPage() {
-    return (
-        <motion.div initial={{ opacity: 0.6 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }}>
-            <div className="mx-auto py-8 px-4 md:px-8 max-w-6xl">
-                <div className="bg-card shadow-md rounded-lg overflow-hidden">
-                    <div className="flex flex-col md:flex-row">
-                        <div className="md:w-1/3 w-full flex items-center justify-center p-4 md:p-6">
-                            <div className="relative w-full max-w-[300px] aspect-[2/3] overflow-clip rounded-md shadow-lg">
-                                <Skeleton className="absolute inset-0" />
-                            </div>
-                        </div>
+  return (
+    <div className="mx-auto max-w-5xl px-4 py-8 md:px-8">
+      <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
+        <div className="flex flex-col md:flex-row">
+          <div className="flex justify-center p-6 md:w-1/3">
+            <Skeleton className="aspect-[2/3] w-full max-w-[260px] rounded-md" />
+          </div>
 
-                        <div className="md:w-2/3 w-full p-4 md:p-6 lg:p-8 flex flex-col">
-                            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-                                <div className="w-full md:w-3/4">
-                                    <Skeleton className="h-10 w-4/5 mb-2" />
-                                    <Skeleton className="h-6 w-2/3" />
-                                </div>
-                                <div className="mt-2 md:mt-0">
-                                    <button className="rounded-full p-3 bg-muted opacity-50">
-                                        <Heart className="h-6 w-6" />
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div className="mb-4 flex flex-wrap gap-2">
-                                {Array.from({ length: 3 }).map((_, i) => (
-                                    <Badge key={i} variant={i === 0 ? "primary" : "default"} className="opacity-50">
-                                        <Skeleton className="h-4 w-16" />
-                                    </Badge>
-                                ))}
-                            </div>
-
-                            <div className="prose prose-sm md:prose-base text-card-foreground mb-6">
-                                <Skeleton className="h-4 w-full mb-2" />
-                                <Skeleton className="h-4 w-full mb-2" />
-                                <Skeleton className="h-4 w-full mb-2" />
-                                <Skeleton className="h-4 w-full mb-2" />
-                                <Skeleton className="h-4 w-5/6 mb-2" />
-                                <Skeleton className="h-4 w-4/6" />
-                            </div>
-
-                            <div className="mt-auto pt-4 border-t border-border">
-                                <div className="flex flex-wrap gap-3">
-                                    {Array.from({ length: 2 }).map((_, i) => (
-                                        <Skeleton key={i} className="h-8 w-32 rounded-md" />
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-8">
-                    <div className="bg-card border border-border rounded-lg shadow-lg p-6 gap-4 mb-8">
-                        <Skeleton className="h-8 w-48 mb-4" />
-                        <Skeleton className="h-28 w-full mb-4 rounded-lg" />
-                        <Skeleton className="h-10 w-24" />
-                    </div>
-
-                    <div className="space-y-4">
-                        {Array.from({ length: 3 }).map((_, index) => (
-                            <div key={index} className="bg-card p-4 rounded-lg shadow-sm">
-                                <Skeleton className="h-4 w-48 mb-2" />
-                                <Skeleton className="h-16 w-full" />
-                            </div>
-                        ))}
-                    </div>
-                </div>
+          <div className="flex flex-1 flex-col gap-5 p-6 md:p-8">
+            <div className="flex justify-between gap-4">
+              <div className="w-3/4 space-y-2">
+                <Skeleton className="h-9 w-4/5" />
+                <Skeleton className="h-6 w-2/3" />
+              </div>
+              <Skeleton className="h-10 w-10 rounded-md" />
             </div>
-        </motion.div>
-    )
+
+            <div className="flex gap-1.5">
+              <Skeleton className="h-5 w-16 rounded-full" />
+              <Skeleton className="h-5 w-20 rounded-full" />
+            </div>
+
+            <div className="space-y-2">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-4/6" />
+            </div>
+
+            <Skeleton className="h-9 w-72" />
+
+            <div className="mt-auto flex gap-3 border-t border-border pt-4">
+              <Skeleton className="h-8 w-40 rounded-md" />
+              <Skeleton className="h-8 w-24 rounded-md" />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8 space-y-4">
+        <Skeleton className="h-8 w-40" />
+        <Skeleton className="h-48 w-full rounded-lg" />
+        {Array.from({ length: 2 }).map((_, index) => (
+          <Skeleton key={index} className="h-24 w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
+  );
 }

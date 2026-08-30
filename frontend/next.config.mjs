@@ -1,23 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: "http",
-        hostname: "localhost",
-        port: "1337",
-        pathname: "/uploads/**/*",
-      },
-      {
-        protocol: "https",
-        hostname: "virtual-library-production.up.railway.app",
-        pathname: "/uploads/**/*",
-      },
-    ],
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  // Covers are generated SVG and the hero backdrop is CSS, so the app loads no
+  // remote images and needs no remotePatterns allowlist.
 };
 
 export default nextConfig;

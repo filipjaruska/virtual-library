@@ -18,7 +18,12 @@ export const env = createEnv({
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_`.
    */ client: {
-    NEXT_PUBLIC_STRAPI_URL: z.string().url(),
+    /**
+     * Optional. When set, the app reads content from that Strapi instance and
+     * falls back to the bundled collection if it is unreachable. When unset —
+     * the default, and how the public demo is deployed — no CMS is contacted.
+     */
+    NEXT_PUBLIC_STRAPI_URL: z.string().url().optional(),
   },
 
   /**

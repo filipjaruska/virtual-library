@@ -1,26 +1,40 @@
-import React from "react";
 import Link from "next/link";
 import Tags from "@/components/custom-ui/tags";
-import { Book } from "@/lib/types/books";
-import { StrapiImage } from "../ui/strapi-image";
+import { BookCover } from "@/components/custom-ui/book-cover";
+import type { Book } from "@/lib/types/books";
 
-const BookCard: React.FC<Book> = ({ title, author, image, description, slug, tags }) => {
-    return (
-        <div className="shadow-md rounded-lg overflow-hidden border-2 hover:scale-105 hover:cursor-pointer">
-            <Link href={`/books/${slug}`}>
-                <StrapiImage width={150} height={150} src={image.formats?.medium?.url || image.url} alt={title}
-                    className="w-full h-48 object-cover" />
-                <div className="p-4">
-                    <h3 className="text-xl font-bold">{title}</h3>
-                    <div className="flex flex-row justify-between">
-                        <p className="text-sm opacity-50">{author}</p>
-                        <Tags tags={tags} />
-                    </div>
-                    <p className="mt-2 opacity-70">{description}</p>
-                </div>
-            </Link>
+export default function BookCard({ book }: { book: Book }) {
+  return (
+    <article className="group h-full overflow-hidden rounded-lg border bg-card shadow-sm transition-shadow hover:shadow-lg">
+      <Link href={`/books/${book.slug}`} className="flex h-full flex-col">
+        <div className="relative aspect-[2/3] overflow-hidden bg-muted">
+          <BookCover
+            slug={book.slug}
+            title={book.title}
+            author={book.author}
+            compact
+            className="h-full w-full transition-transform duration-300 group-hover:scale-105"
+          />
         </div>
-    );
-};
 
-export default BookCard;
+        <div className="flex flex-1 flex-col gap-2 p-4">
+          <div>
+            <h3 className="font-bold leading-snug line-clamp-2">{book.title}</h3>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {book.author}
+              {book.year ? ` · ${book.year}` : ""}
+            </p>
+          </div>
+
+          <p className="line-clamp-3 text-sm text-muted-foreground">
+            {book.description}
+          </p>
+
+          <div className="mt-auto pt-2">
+            <Tags tags={book.tags} />
+          </div>
+        </div>
+      </Link>
+    </article>
+  );
+}

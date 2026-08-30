@@ -1,156 +1,166 @@
 # Virtual Library
 
-This project is the practical part of a bachelor's thesis titled **"Leveraging a Content Management System (CMS) in conjunction with Next.js"** (_"Využití redakčního systému v kombinaci s Next.js"_). The full thesis text is available at [theses.cz/id/m5huc8](https://theses.cz/id/m5huc8/).
+[![CI](https://github.com/filipjaruska/virtual-library/actions/workflows/ci.yml/badge.svg)](https://github.com/filipjaruska/virtual-library/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-The application is a book collection manager. Users can browse a library of books, filter and sort them, leave comments, mark favourites, and view collection statistics. The point of the project was to demonstrate how a headless CMS (Strapi) can serve as a backend for a modern React frontend (Next.js) -- how the two communicate, what the development workflow looks like, and what trade-offs come with this architecture.
+A book collection you can browse, search, filter and shelve.
 
-## Live demo
+**Live demo → [virtual-library-rho.vercel.app](https://virtual-library-rho.vercel.app/)**
 
-The frontend is deployed on Vercel: **[virtual-library-rho.vercel.app](https://virtual-library-rho.vercel.app/)**
+![The books grid](docs/screenshots/books-dark.png)
 
-The demo runs in **demo mode** by default -- it uses bundled mock data instead of calling a live Strapi instance, so you can explore the UI without any backend running. The Strapi backend was originally deployed on [Railway](https://railway.app/) with a PostgreSQL database.
+This started as the practical component of a bachelor's thesis, _"Leveraging a Content Management System (CMS) in conjunction with Next.js"_ ([full text](https://theses.cz/id/m5huc8/)). The brief was to show how a headless CMS could back a modern React frontend: what the integration looks like, how the two communicate, and what the architecture costs you.
 
-## What the app does
+The thesis backend, Strapi on Railway with Postgres, has since been decommissioned, which is the ordinary fate of a student project's hosting bill. Rather than let the demo rot, the frontend now ships its own dataset and runs standalone, while keeping the CMS integration intact as a configurable content source. The Strapi application is still in [`backend/`](backend/), schemas and all.
 
-- **Book catalogue** -- paginated grid of books with cover images, pulled from Strapi's REST API. Each book has a detail page (`/books/[slug]`) with description, external links, and tags.
-- **Search and filtering** -- text search across titles/authors/descriptions, tag-based filtering, and sort by title or author (ascending/descending). All handled server-side through Strapi's query parameter API.
-- **Comments** -- authenticated users can post comments on individual books. Comments are stored as a separate content type in Strapi and linked to books via a relation.
-- **Favourites** -- logged-in users can mark books as favourites. The favourite list is tied to the user record in Strapi and displayed in the dashboard.
-- **User dashboard** (`/dashboard`) -- shows the user's profile, their favourite books, and derived stats (number of favourites, unique authors, most common tag). There is also an account settings page at `/dashboard/account`.
-- **Library statistics** (`/dashboard/information`) -- aggregate stats rendered with [Recharts](https://recharts.org/): total books, total comments, unique authors, a pie chart of tag distribution, and an area chart of monthly additions.
-- **Authentication** -- sign up / sign in forms that talk to Strapi's built-in Users & Permissions plugin. JWT tokens are stored in cookies. A Next.js middleware redirects unauthenticated users away from `/dashboard` and `/books`.
-- **Command bar** -- a [kbar](https://kbar.vercel.app/) command palette (Ctrl+K) for quick navigation between pages and theme switching.
-- **Theming** -- light, dark, and OLED dark themes via [next-themes](https://github.com/pacocoursey/next-themes). Theme preference persists across sessions.
+## Features
+
+|                     |                                                                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Catalogue**       | 76 titles with descriptions, genres, publication years and links out to Project Gutenberg. Paginated grid, detail page per book.                                |
+| **Search & filter** | Full-text across title, author and description; filter by genre; seven sort orders. All state lives in the URL, so any view is linkable and survives a refresh. |
+| **Shelf**           | Favourite books and track them as _want to read_ / _reading_ / _read_. Kept in `localStorage` via Zustand — no account, nothing leaves the browser.             |
+| **Comments**        | Leave notes on any book. Yours sit alongside the ones bundled with the collection and can be deleted again.                                                     |
+| **Statistics**      | Genre distribution and month-by-month activity, rendered with Recharts.                                                                                         |
+| **Command palette** | `Ctrl+K` for navigation and theme switching, via kbar. `Ctrl+F` jumps to search.                                                                                |
+| **Three themes**    | Light, dark and an OLED-black variant, resolved before first paint so there is no flash.                                                                        |
+
+## Screenshots
+
+|                 | Light                                       | Dark                                       |
+| --------------- | ------------------------------------------- | ------------------------------------------ |
+| **Home**        | ![](docs/screenshots/home-light.png)        | ![](docs/screenshots/home-dark.png)        |
+| **Books**       | ![](docs/screenshots/books-light.png)       | ![](docs/screenshots/books-dark.png)       |
+| **Book detail** | ![](docs/screenshots/book-detail-light.png) | ![](docs/screenshots/book-detail-dark.png) |
+| **Shelf**       | ![](docs/screenshots/shelf-light.png)       | ![](docs/screenshots/shelf-dark.png)       |
+| **Statistics**  | ![](docs/screenshots/stats-light.png)       | ![](docs/screenshots/stats-dark.png)       |
+
+Regenerate with `npm run screenshots` (see [below](#regenerating-the-screenshots)).
 
 ## Architecture
 
 ```
 virtual-library/
-  frontend/       Next.js 15 (App Router) + React 19 RC
-  backend/        Strapi v4.25.6
+├── frontend/     Next.js 15 (App Router) + React 19
+└── backend/      Strapi v4 — the original thesis CMS
 ```
 
-The frontend and backend are separate Node.js applications in a single repository. They communicate exclusively through Strapi's REST API.
+### Two content sources, one interface
+
+Everything the app renders goes through `src/lib/content`, which exposes plain functions (`getBooks`, `getBook`, `getLibraryStats`, …) and hides where the data came from.
+
+```
+lib/content/
+├── index.ts    public API — what pages import
+├── source.ts   which source answers, and the circuit breaker
+├── strapi.ts   Strapi v4 adapter
+├── local.ts    bundled adapter (query, filter, sort, paginate)
+└── seed/       the collection, its comments, and the page content
+```
+
+Strapi is the **primary** source whenever `NEXT_PUBLIC_STRAPI_URL` is set. The bundled collection is the fallback. The deployed site sets no URL at all, so it resolves locally and never opens a socket.
+
+The interesting part is what happens when a URL _is_ configured and the CMS is down. Wrapping each loader in its own `try`/`catch` would mean paying a failed round-trip on every loader on every render — a dead backend would make each page crawl. Instead `source.ts` keeps a circuit breaker: the first failure trips it for a 60-second window, during which every call resolves straight to the bundled data. Requests also carry an `AbortSignal.timeout`, so an unresponsive host cannot stall a render. One timeout per window, not one per query.
+
+```ts
+export async function fromStrapi<T>(
+  viaStrapi: () => Promise<T>,
+  viaLocal: () => T,
+): Promise<T> {
+  if (!strapiUrl() || breakerOpen()) return viaLocal();
+  try {
+    return await viaStrapi();
+  } catch (error) {
+    trip(error);
+    return viaLocal();
+  }
+}
+```
+
+Fallback is per-resource, so a Strapi that is up but missing one content type still renders the rest.
+
+### Client state
+
+Favourites, reading status and comments are anonymous and browser-local, held in a Zustand store persisted to `localStorage`.
+
+Persisted state is invisible to the server, so the store uses `skipHydration` and is rehydrated after mount by a `useHydrated` hook. Components read it only once that flips, rendering a neutral state until then. Without this, the first client render disagrees with the server HTML and React throws a hydration error — the usual way this feature goes wrong.
+
+### Generated covers
+
+The original cover images were CMS media uploads and went with the instance. Covers are now drawn from each book's slug: a hash picks a hue and one of six geometric motifs, and the title and author are set into an SVG. Stable, unique per book, and no external image host — the app requests no third-party assets at all.
+
+### Data flow
+
+Book pages are prerendered at build time from `generateStaticParams`, with `dynamicParams = false` so an unknown slug returns a genuine 404 rather than a soft one. The books listing is server-rendered per request because its state is entirely URL-driven; the client component handles only the debounced input and `useTransition` pending states.
+
+## Running it
 
 ### Frontend
 
-Built with Next.js 15 using the App Router. Key implementation details:
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
-- **Data loading** -- all Strapi API calls go through `src/lib/loaders.ts`, which builds query strings with the [qs](https://github.com/ljharb/qs) library (Strapi's filtering/population/pagination syntax requires nested query parameters). Responses are flattened from Strapi's nested `{ data: { attributes: ... } }` format into plain objects via a `flattenAttributes` utility.
-- **Caching** -- uses Next.js `fetch` with `next.revalidate` for ISR-style caching. Different endpoints use different TTLs (5 minutes for book listings, 1 hour for stats, 24 hours for global layout data).
-- **Demo mode** -- a `DEMO_MODE` flag in `loaders.ts` short-circuits all API calls and returns data from static mock files in `src/lib/mock-data/`. This is what the Vercel deployment uses, so the app works without a running backend.
-- **Environment validation** -- uses [@t3-oss/env-nextjs](https://env.t3.gg/) with Zod schemas to validate `NEXT_PUBLIC_STRAPI_URL` and other env vars at build time. Can be skipped with `SKIP_ENV_VALIDATION=true` for demo mode.
-- **UI components** -- built with [Radix UI](https://www.radix-ui.com/) primitives (dialog, dropdown menu, tabs, accordion, tooltip, select, etc.) and styled with [Tailwind CSS](https://tailwindcss.com/). Component variants managed with [class-variance-authority](https://cva.style/docs).
-- **Forms** -- [React Hook Form](https://react-hook-form.com/) with Zod resolvers for login, signup, comments, and profile editing.
-- **Server actions** -- comment creation, favourite toggling, authentication, and profile updates are implemented as Next.js Server Actions in `src/lib/actions/`.
+That is the whole setup — no environment file, no backend. `http://localhost:3000`.
 
-### Backend
+| Command               |                                   |
+| --------------------- | --------------------------------- |
+| `npm run dev`         | Dev server (Turbopack)            |
+| `npm run build`       | Production build                  |
+| `npm run start`       | Serve the production build        |
+| `npm run lint`        | ESLint                            |
+| `npm run typecheck`   | `tsc --noEmit`                    |
+| `npm run screenshots` | Regenerate the README screenshots |
 
-Strapi v4 with the following content types (defined in `backend/src/api/`):
+### Frontend against Strapi
 
-- **Book** -- title, author, description, slug, cover image (media), tags (relation to Tag), external links (component), comments (relation to Comment).
-- **Comment** -- content text, linked to a Book and a User.
-- **Home Page** -- single type with dynamic zones for hero section, features section, and Q&A section. This is how the landing page content is managed through the Strapi admin panel.
-- **Global** -- single type for site-wide data: header logo/nav, footer content, social links, and SEO metadata (title, description).
-
-The database config (`backend/config/database.js`) supports SQLite for local development and PostgreSQL for production. The production deployment on Railway used a PostgreSQL instance connected via `DATABASE_URL`.
-
-## Running it locally
-
-### Prerequisites
-
-- Node.js 18 or newer
-- npm
-
-### Backend (Strapi)
+To exercise the CMS path, start the backend and point the frontend at it:
 
 ```bash
 cd backend
 npm install
-cp .env.example .env
+cp .env.example .env       # then fill in the secrets it lists
+npm run develop            # admin panel at http://localhost:1337/admin
 ```
 
-Edit `.env` and set the required secrets (`APP_KEYS`, `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`, `JWT_SECRET`). You can generate random values with `openssl rand -base64 32`. For local development, the database defaults to SQLite, so you do not need to set `DATABASE_URL`.
+Generate the required secrets (`APP_KEYS`, `API_TOKEN_SALT`, `ADMIN_JWT_SECRET`, `TRANSFER_TOKEN_SALT`, `JWT_SECRET`) with `openssl rand -base64 32`. The database defaults to SQLite locally; production used Postgres via `DATABASE_URL`.
 
-```bash
-npm run develop
-```
-
-Strapi admin panel will be at `http://localhost:1337/admin`. On first run it will ask you to create an admin account.
-
-### Frontend (Next.js)
-
-```bash
-cd frontend
-npm install --legacy-peer-deps
-cp .env.example .env.local
-```
-
-The `--legacy-peer-deps` flag is needed because the project uses React 19 RC, and some dependencies have not updated their peer dependency ranges yet.
-
-To connect to your local Strapi, edit `.env.local`:
+Then in `frontend/.env.local`:
 
 ```
-SKIP_ENV_VALIDATION=false
 NEXT_PUBLIC_STRAPI_URL="http://localhost:1337"
 ```
 
-You also need to set `DEMO_MODE = false` in the following files (they default to `true`):
+Content types live in `backend/src/api/`: **Book** (title, author, description, slug, cover, tags, links, comments), **Comment**, and the **Home Page** and **Global** single types that drive the landing page's dynamic zone and the header/footer.
 
-- `src/lib/loaders.ts`
-- `src/lib/services/auth-service.ts`
-- `src/lib/services/get-token.ts`
-- `src/lib/services/get-user-me-loader.ts`
-- `src/lib/actions/favorite-actions.ts`
-- `src/lib/actions/create-comment.ts`
+Note that a fresh Strapi is empty — the app will read from it and find nothing. The bundled collection is not imported into the CMS.
 
-Then start the dev server:
+### Regenerating the screenshots
 
 ```bash
-npm run dev
+cd frontend
+npm run build
+npx playwright install chromium   # once
+npm run screenshots
 ```
 
-The frontend will be at `http://localhost:3000`.
+`scripts/screenshots.mjs` starts the production server on its own port, seeds a shelf so that page is not an empty state, and captures each page in light and dark to `docs/screenshots/`.
 
-To run in **demo mode** without a backend, keep `SKIP_ENV_VALIDATION=true` and `DEMO_MODE = true` (the defaults). The app will serve mock data for all pages.
+## Stack
 
-### Available scripts
-
-| Directory  | Command              | Description                          |
-|------------|----------------------|--------------------------------------|
-| `frontend` | `npm run dev`        | Start Next.js dev server             |
-| `frontend` | `npm run build`      | Production build                     |
-| `frontend` | `npm run start`      | Start production server              |
-| `frontend` | `npm run lint`       | Run ESLint                           |
-| `backend`  | `npm run develop`    | Start Strapi in development mode     |
-| `backend`  | `npm run start`      | Start Strapi in production mode      |
-| `backend`  | `npm run build`      | Build the Strapi admin panel         |
-| `backend`  | `npm run strapi`     | Access the Strapi CLI                |
-
-## Key dependencies
-
-| Package | Version | What it does in this project |
-|---|---|---|
-| [next](https://nextjs.org/) | 15.x | App Router, server components, server actions, middleware |
-| [react](https://react.dev/) | 19.0.0-rc | Used the release candidate for `useFormStatus`, `useOptimistic`, and other React 19 APIs |
-| [@strapi/strapi](https://strapi.io/) | 4.25.6 | Headless CMS, REST API, user auth, media uploads |
-| [@tanstack/react-query](https://tanstack.com/query) | 5.x | Client-side data fetching and cache management |
-| [kbar](https://kbar.vercel.app/) | 0.1.0-beta.45 | Command palette UI |
-| [recharts](https://recharts.org/) | 2.x | Charts on the statistics page |
-| [zod](https://zod.dev/) | 3.x | Schema validation for forms and environment variables |
-| [motion](https://motion.dev/) | 11.x | Animations |
-
-## Services used for deployment
-
-- **[Vercel](https://vercel.com/)** -- frontend hosting. The free tier was sufficient. Vercel also provides the `@vercel/speed-insights` package integrated in the app.
-- **[Railway](https://railway.app/)** -- backend (Strapi) hosting with a managed PostgreSQL database. The Strapi instance ran as a standard Node.js service.
-
-## Notes
-
-- The project uses React 19 RC. Some dependency installations will show peer dependency warnings -- this is expected and the reason for the `--legacy-peer-deps` flag.
-- Environment variables are validated at build time when `SKIP_ENV_VALIDATION` is not set. If the build fails with a URL validation error, make sure `NEXT_PUBLIC_STRAPI_URL` includes the protocol (`https://`).
-- The trailing slash on URLs can sometimes cause issues with Strapi API calls. The `.env.example` file notes this.
+|                                                                                  |                                                     |
+| -------------------------------------------------------------------------------- | --------------------------------------------------- |
+| [Next.js 15](https://nextjs.org/)                                                | App Router, server components, static generation    |
+| [React 19](https://react.dev/)                                                   |                                                     |
+| [Zustand](https://zustand.docs.pmnd.rs/)                                         | Persisted client state for the shelf and comments   |
+| [Tailwind CSS](https://tailwindcss.com/) + [Radix UI](https://www.radix-ui.com/) | Styling and unstyled primitives                     |
+| [Recharts](https://recharts.org/)                                                | Statistics charts                                   |
+| [React Hook Form](https://react-hook-form.com/) + [Zod](https://zod.dev/)        | Comment form and env validation                     |
+| [kbar](https://kbar.vercel.app/)                                                 | Command palette                                     |
+| [Strapi v4](https://strapi.io/)                                                  | The thesis CMS, still supported as a content source |
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE).

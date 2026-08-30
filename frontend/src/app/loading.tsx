@@ -1,9 +1,11 @@
-import React from 'react';
-
 export default function Loading() {
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-muted bg-opacity-50">
-            <div className="animate-spin h-12 w-12 border-t-4 border-primary rounded-full"/>
-        </div>
-    );
+  return (
+    <div className="flex min-h-[60vh] items-center justify-center">
+      <div
+        className="h-10 w-10 animate-spin rounded-full border-4 border-muted border-t-primary"
+        role="status"
+        aria-label="Loading"
+      />
+    </div>
+  );
 }

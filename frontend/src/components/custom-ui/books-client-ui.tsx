@@ -1,228 +1,174 @@
 "use client";
 
+import { useEffect, useRef, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Search, X } from "lucide-react";
 import { BooksNavigationMenu } from "@/components/custom-ui/books-navigation-menu";
 import Pagination from "@/components/custom-ui/pagination";
 import BookGrid from "@/components/section/bookgrid-section";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useBooks } from "@/hooks/use-books";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { FaSearch } from "react-icons/fa";
-import { MdKeyboardCommandKey } from "react-icons/md";
+import { BOOK_SORTS, type Book, type BookSort } from "@/lib/types/books";
 
 interface BooksClientUIProps {
-    initialBooks: any[];
-    initialTotalPages: number;
-    initialPage: number;
-    initialSearchQuery: string;
-    initialTag: string;
-    initialSort: string;
+  books: Book[];
+  tags: string[];
+  total: number;
+  page: number;
+  pageCount: number;
+  search: string;
+  tag: string;
+  sort: BookSort;
 }
 
 export default function BooksClientUI({
-    initialBooks,
-    initialTotalPages,
-    initialPage,
-    initialSearchQuery,
-    initialTag,
-    initialSort
+  books,
+  tags,
+  total,
+  page,
+  pageCount,
+  search,
+  tag,
+  sort,
 }: BooksClientUIProps) {
-    const router = useRouter();
-    const searchParams = useSearchParams();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
 
-    const [searchInput, setSearchInput] = useState(initialSearchQuery);
-    const debouncedSearchInput = useDebounce(searchInput, 150);
+  const [searchInput, setSearchInput] = useState(search);
+  const debouncedSearch = useDebounce(searchInput, 250);
 
-    const currentSearchQuery = searchParams.get('search') || initialSearchQuery;
-    const currentTag = searchParams.get('tag') || initialTag;
-    const currentPage = parseInt(searchParams.get('page') || String(initialPage));
-    const currentSort = searchParams.get('sort') || initialSort;
+  /**
+   * The URL is the source of truth, but the input has to stay responsive while
+   * the debounce settles. This holds the last value we pushed so the two can be
+   * told apart: a URL change we caused is ignored, a URL change from the back
+   * button or a tag reset is pulled back into the input.
+   */
+  const pushedSearch = useRef(search);
 
-    const { data, isLoading, isError } = useBooks({
-        searchQuery: currentSearchQuery,
-        tag: currentTag,
-        page: currentPage,
-        sort: currentSort,
-        initialData: {
-            data: initialBooks,
-            meta: { pagination: { pageCount: initialTotalPages } },
-        },
-    });
+  const navigate = (params: Record<string, string | number>) => {
+    const url = new URL(window.location.href);
+    for (const [key, value] of Object.entries(params)) {
+      if (value === "" || value === undefined) url.searchParams.delete(key);
+      else url.searchParams.set(key, String(value));
+    }
+    startTransition(() => router.push(`${url.pathname}${url.search}`));
+  };
 
-    useEffect(() => {
-        setSearchInput(currentSearchQuery);
-    }, [currentSearchQuery]);
+  useEffect(() => {
+    if (debouncedSearch === pushedSearch.current) return;
+    pushedSearch.current = debouncedSearch;
+    navigate({ search: debouncedSearch, page: 1 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
-    useEffect(() => {
-        if (debouncedSearchInput !== currentSearchQuery) {
-            navigate({ search: debouncedSearchInput });
-        }
-    }, [debouncedSearchInput]);
+  useEffect(() => {
+    if (search === pushedSearch.current) return;
+    pushedSearch.current = search;
+    setSearchInput(search);
+  }, [search]);
 
-    const books = data?.data || [];
-    const totalPages = data?.meta?.pagination?.pageCount || initialTotalPages;
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const input = document.getElementById("search-input");
+      if (!(input instanceof HTMLInputElement)) return;
 
-    const navigate = (params: Record<string, string | number>) => {
-        const url = new URL(window.location.href);
-
-        Object.entries(params).forEach(([key, value]) => {
-            if (value === '' || value === undefined) {
-                url.searchParams.delete(key);
-            } else {
-                url.searchParams.set(key, String(value));
-            }
-        });
-
-        // If changing filters, reset to page 1
-        if (params.search !== undefined || params.tag !== undefined || params.sort !== undefined) {
-            url.searchParams.set('page', '1');
-        }
-
-        router.push(url.toString());
+      if (event.ctrlKey && event.key === "f") {
+        event.preventDefault();
+        input.focus();
+        input.select();
+      } else if (event.key === "Escape" && document.activeElement === input) {
+        input.blur();
+      }
     };
 
-    // Event handlers
-    const handleSearch = () => {
-        navigate({ search: searchInput });
-    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
-    const handleTagSelect = (tag: string) => {
-        navigate({ tag });
-    };
+  return (
+    <>
+      <header className="flex flex-col gap-3 border-b border-border bg-secondary px-3 py-3 lg:flex-row lg:items-center lg:justify-between">
+        <BooksNavigationMenu tags={tags} activeTag={tag} onTagSelect={(next) => navigate({ tag: next, page: 1 })} />
 
-    const handleSortChange = (newSort: string) => {
-        navigate({ sort: newSort });
-    };
-
-    const handlePageChange = (newPage: number) => {
-        navigate({ page: newPage });
-    };
-
-    const clearTagFilter = () => {
-        navigate({ tag: '' });
-    };
-
-    // Keyboard shortcuts
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            const searchInput = document.getElementById('search-input') as HTMLInputElement;
-            if (event.ctrlKey && event.key === 'f') {
-                event.preventDefault();
-                if (searchInput) {
-                    searchInput.focus();
-                }
-            } else if (event.key === 'Escape' && document.activeElement === searchInput) {
-                searchInput.blur();
-            } else if (event.key === 'Enter' && document.activeElement === searchInput) {
-                handleSearch();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [searchInput]);
-
-    return (
-        <>
-            <header className="flex items-center justify-between bg-secondary px-2 py-2 border-b border-primary">
-                <BooksNavigationMenu onTagSelect={handleTagSelect} />
-                <div className="relative flex items-center">
-                    <input
-                        id="search-input"
-                        type="text"
-                        placeholder="Search..."
-                        value={searchInput}
-                        className="px-4 py-2 rounded-lg border border-primary bg-card min-w-fit lg:min-w-96 ml-2"
-                        onChange={(e) => setSearchInput(e.target.value)}
-                        onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    />
-                    <button
-                        onClick={handleSearch}
-                        className="absolute right-3 top-2/4 transform -translate-y-2/4 text-card-foreground cursor-pointer"
-                        aria-label="Search"
-                    >
-                        <FaSearch />
-                    </button>
-                    <span className="absolute right-10 text-gray-500 flex items-center">
-                        <MdKeyboardCommandKey />+F
-                    </span>
-                </div>
-                <div className="ml-4">
-                    <Select value={currentSort} onValueChange={handleSortChange}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Sort by" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectItem value="title:asc">Sort by Name (A-Z)</SelectItem>
-                                <SelectItem value="title:desc">Sort by Name (Z-A)</SelectItem>
-                                <SelectItem value="createdAt:desc">Sort by Newest</SelectItem>
-                                <SelectItem value="createdAt:asc">Sort by Oldest</SelectItem>
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </header>
-
-            {currentTag && (
-                <div className="flex items-center px-4 py-2 bg-muted/10 justify-end">
-                    <div className="flex items-center">
-                        <span className="font-medium mr-1">Tag filter:</span>
-                        <div className="flex items-center bg-primary/10 text-primary rounded px-2 py-1">
-                            <span>{currentTag}</span>
-                            <button
-                                className="ml-2 text-primary hover:text-primary/70"
-                                onClick={clearTagFilter}
-                            >
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            <div className="relative">
-                {isLoading && (
-                    <div className="absolute top-2 right-2 z-10 bg-card border border-border rounded-full px-3 py-1 text-xs shadow-md">
-                        Loading...
-                    </div>
-                )}
-
-                {isLoading && books.length === 0 ? (
-                    <div className="p-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4">
-                            {Array.from({ length: 12 }).map((_, i) => (
-                                <div key={i} className="flex flex-col">
-                                    <Skeleton className="h-64 w-full rounded-md" />
-                                    <Skeleton className="h-6 w-3/4 mt-2" />
-                                    <Skeleton className="h-4 w-1/2 mt-2" />
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                ) : isError ? (
-                    <div className="p-4 text-center text-red-500">
-                        <p className="mb-4">Failed to load books. Please try again.</p>
-                    </div>
-                ) : books.length === 0 ? (
-                    <div className="p-8 text-center">
-                        <h3 className="text-lg font-medium mb-2">No books found</h3>
-                        <p className="text-muted-foreground mb-4">Try changing your search or filters</p>
-                    </div>
-                ) : (
-                    <BookGrid books={books} />
-                )}
-            </div>
-
-            <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
+        <div className="flex flex-1 items-center gap-3 lg:justify-end">
+          <div className="relative flex-1 lg:max-w-md">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              id="search-input"
+              type="search"
+              placeholder="Search title, author or description…"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              className="w-full rounded-lg border border-input bg-card py-2 pl-9 pr-16 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Search books"
             />
-        </>
-    );
+            <kbd className="pointer-events-none absolute right-3 top-1/2 hidden -translate-y-1/2 rounded border border-border bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground sm:block">
+              Ctrl F
+            </kbd>
+          </div>
+
+          <Select value={sort} onValueChange={(next) => navigate({ sort: next, page: 1 })}>
+            <SelectTrigger className="w-[170px] shrink-0">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {BOOK_SORTS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+      </header>
+
+      <div className="flex flex-wrap items-center gap-2 px-4 py-3 text-sm text-muted-foreground">
+        <span aria-live="polite">
+          {total} {total === 1 ? "book" : "books"}
+          {tag ? " in" : ""}
+        </span>
+
+        {tag && (
+          <button
+            onClick={() => navigate({ tag: "", page: 1 })}
+            className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-primary transition-colors hover:bg-primary/20"
+          >
+            {tag}
+            <X className="h-3 w-3" />
+            <span className="sr-only">Clear tag filter</span>
+          </button>
+        )}
+
+        {search && <span>matching “{search}”</span>}
+      </div>
+
+      <div className={isPending ? "opacity-60 transition-opacity" : "transition-opacity"}>
+        {books.length === 0 ? (
+          <div className="px-4 py-20 text-center">
+            <h2 className="text-lg font-medium">No books found</h2>
+            <p className="mt-1 text-muted-foreground">
+              Try a different search term or clear the tag filter.
+            </p>
+          </div>
+        ) : (
+          <BookGrid books={books} />
+        )}
+      </div>
+
+      <Pagination
+        currentPage={page}
+        totalPages={pageCount}
+        onPageChange={(next) => navigate({ page: next })}
+      />
+    </>
+  );
 }
